@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Search, Lightning, Smartphone, Wifi, Tv, Droplet, Home, CreditCard, FileClock, ChevronRight } from 'lucide-react';
+import { Search, Zap, Smartphone, Wifi, Tv, Droplet, Home, CreditCard, FileClock, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
@@ -25,7 +24,7 @@ const BillsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
   const billCategories: BillCategory[] = [
-    { id: 'electricity', name: 'Electricity', icon: <Lightning size={20} />, color: 'bg-yellow-100 text-yellow-600' },
+    { id: 'electricity', name: 'Electricity', icon: <Zap size={20} />, color: 'bg-yellow-100 text-yellow-600' },
     { id: 'mobile', name: 'Mobile', icon: <Smartphone size={20} />, color: 'bg-blue-100 text-blue-600' },
     { id: 'broadband', name: 'Broadband', icon: <Wifi size={20} />, color: 'bg-purple-100 text-purple-600' },
     { id: 'dth', name: 'DTH/Cable TV', icon: <Tv size={20} />, color: 'bg-red-100 text-red-600' },
