@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Zap, Smartphone, Wifi, Tv, Droplet, Home, CreditCard, FileClock, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -21,6 +23,7 @@ interface BillProvider {
 }
 
 const BillsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   
   const billCategories: BillCategory[] = [
@@ -57,6 +60,18 @@ const BillsPage: React.FC = () => {
         provider.category.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : popularProviders;
+    
+  const handleCategoryClick = (categoryId: string) => {
+    navigate(`/bills/category/${categoryId}`);
+  };
+  
+  const handleRecentBillClick = (billId: string) => {
+    navigate(`/bills/pay/${billId}`);
+  };
+  
+  const handleProviderClick = (providerId: string) => {
+    navigate(`/bills/provider/${providerId}`);
+  };
 
   return (
     <div className="app-container pb-20">
@@ -80,7 +95,10 @@ const BillsPage: React.FC = () => {
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Recent Bills</h2>
-              <button className="text-app-blue text-sm font-medium flex items-center">
+              <button 
+                className="text-app-blue text-sm font-medium flex items-center"
+                onClick={() => navigate('/bills/recent')}
+              >
                 All <ChevronRight size={16} />
               </button>
             </div>
@@ -89,7 +107,8 @@ const BillsPage: React.FC = () => {
               {recentBills.map((bill) => (
                 <div 
                   key={bill.id}
-                  className="p-4 bg-white rounded-xl shadow-sm flex items-center"
+                  className="p-4 bg-white rounded-xl shadow-sm flex items-center cursor-pointer hover:shadow-md transition-all duration-200"
+                  onClick={() => handleRecentBillClick(bill.id)}
                 >
                   <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3 text-lg">
                     {bill.logo}
@@ -114,6 +133,7 @@ const BillsPage: React.FC = () => {
               <button
                 key={category.id}
                 className="p-3 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col items-center"
+                onClick={() => handleCategoryClick(category.id)}
               >
                 <div className={`w-10 h-10 rounded-full ${category.color} flex items-center justify-center mb-2`}>
                   {category.icon}
@@ -131,7 +151,8 @@ const BillsPage: React.FC = () => {
             {filteredProviders.map((provider) => (
               <div 
                 key={provider.id}
-                className="p-4 bg-white rounded-xl shadow-sm flex items-center"
+                className="p-4 bg-white rounded-xl shadow-sm flex items-center cursor-pointer hover:shadow-md transition-all duration-200"
+                onClick={() => handleProviderClick(provider.id)}
               >
                 <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3 text-lg">
                   {provider.logo}

@@ -18,6 +18,9 @@ import FundDetailsPage from "./pages/FundDetailsPage";
 import InvestConfirmPage from "./pages/InvestConfirmPage";
 import BillsPage from "./pages/BillsPage";
 import MorePage from "./pages/MorePage";
+import BillCategoryPage from "./pages/BillCategoryPage";
+import MutualFundProviderPage from "./pages/MutualFundProviderPage";
+import InvestmentOptionsPage from "./pages/InvestmentOptionsPage";
 
 const queryClient = new QueryClient();
 
@@ -38,7 +41,10 @@ const App = () => (
           <Route path="/invest" element={<InvestPage />} />
           <Route path="/invest/fund/:fundId" element={<FundDetailsPage />} />
           <Route path="/invest/confirm" element={<InvestConfirmPage />} />
+          <Route path="/invest/options/:fundId" element={<InvestmentOptionsPage />} />
+          <Route path="/invest/mutual-funds" element={<MutualFundProviderPage />} />
           <Route path="/bills" element={<BillsPage />} />
+          <Route path="/bills/category/:categoryId" element={<BillCategoryPage />} />
           <Route path="/more" element={<MorePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

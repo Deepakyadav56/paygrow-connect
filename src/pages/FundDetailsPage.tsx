@@ -107,7 +107,8 @@ const FundDetailsPage: React.FC = () => {
       return;
     }
     
-    navigate('/invest/confirm', {
+    // Navigate to investment options page for more detailed configuration
+    navigate(`/invest/options/${fund.id}`, {
       state: {
         fundId: fund.id,
         fundName: fund.name,
