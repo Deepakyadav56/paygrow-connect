@@ -63,7 +63,7 @@ const BillCategoryPage: React.FC = () => {
 
   return (
     <div className="app-container pb-20">
-      <Header title={categoryNames[categoryId || ''] || 'Bills'} showBackButton />
+      <Header title={categoryNames[categoryId || ''] || 'Bills'} showBack={true} />
       
       <div className="px-6 py-4">
         <div className="relative mb-6">
