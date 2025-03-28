@@ -1,58 +1,60 @@
 
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { Home, Send, Banknote, LineChart, Menu } from 'lucide-react';
 
 const BottomNav: React.FC = () => {
+  const location = useLocation();
+  
   return (
-    <nav className="bottom-nav">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10 flex items-center justify-around p-2">
       <NavLink 
-        to="/"
+        to="/home"
         className={({ isActive }) => 
-          `nav-item ${isActive ? 'active' : 'text-gray-500'}`
+          `flex flex-col items-center py-2 px-3 ${isActive ? 'text-app-blue' : 'text-gray-500'}`
         }
       >
-        <Home size={22} className="nav-icon" />
+        <Home size={22} className="mb-1" />
         <span className="text-xs">Home</span>
       </NavLink>
       
       <NavLink 
         to="/payments"
         className={({ isActive }) => 
-          `nav-item ${isActive ? 'active' : 'text-gray-500'}`
+          `flex flex-col items-center py-2 px-3 ${isActive ? 'text-app-blue' : 'text-gray-500'}`
         }
       >
-        <Send size={22} className="nav-icon" />
+        <Send size={22} className="mb-1" />
         <span className="text-xs">Payments</span>
       </NavLink>
       
       <NavLink 
         to="/bills"
         className={({ isActive }) => 
-          `nav-item ${isActive ? 'active' : 'text-gray-500'}`
+          `flex flex-col items-center py-2 px-3 ${isActive ? 'text-app-blue' : 'text-gray-500'}`
         }
       >
-        <Banknote size={22} className="nav-icon" />
+        <Banknote size={22} className="mb-1" />
         <span className="text-xs">Bills</span>
       </NavLink>
       
       <NavLink 
         to="/invest"
         className={({ isActive }) => 
-          `nav-item ${isActive ? 'active' : 'text-gray-500'}`
+          `flex flex-col items-center py-2 px-3 ${isActive ? 'text-app-blue' : 'text-gray-500'}`
         }
       >
-        <LineChart size={22} className="nav-icon" />
+        <LineChart size={22} className="mb-1" />
         <span className="text-xs">Invest</span>
       </NavLink>
       
       <NavLink 
         to="/more"
         className={({ isActive }) => 
-          `nav-item ${isActive ? 'active' : 'text-gray-500'}`
+          `flex flex-col items-center py-2 px-3 ${isActive ? 'text-app-blue' : 'text-gray-500'}`
         }
       >
-        <Menu size={22} className="nav-icon" />
+        <Menu size={22} className="mb-1" />
         <span className="text-xs">More</span>
       </NavLink>
     </nav>

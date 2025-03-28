@@ -15,6 +15,9 @@ import PaymentsPage from "./pages/PaymentsPage";
 import SendMoneyPage from "./pages/SendMoneyPage";
 import InvestPage from "./pages/InvestPage";
 import FundDetailsPage from "./pages/FundDetailsPage";
+import InvestConfirmPage from "./pages/InvestConfirmPage";
+import BillsPage from "./pages/BillsPage";
+import MorePage from "./pages/MorePage";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +37,9 @@ const App = () => (
           <Route path="/payments/send" element={<SendMoneyPage />} />
           <Route path="/invest" element={<InvestPage />} />
           <Route path="/invest/fund/:fundId" element={<FundDetailsPage />} />
+          <Route path="/invest/confirm" element={<InvestConfirmPage />} />
+          <Route path="/bills" element={<BillsPage />} />
+          <Route path="/more" element={<MorePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
