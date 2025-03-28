@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Calendar, Repeat, CreditCard, Clock, ChevronsUpDown, Info, ChevronRight, HelpCircle } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Calendar, Repeat, CreditCard, Clock, ChevronsUpDown, Info, ChevronRight, HelpCircle, Percent, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +22,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Slider } from "@/components/ui/slider";
 
 // Mock data for funds
 const fundsData: Record<string, any> = {
@@ -41,6 +42,12 @@ const fundsData: Record<string, any> = {
       oneYear: 12.5,
       threeYear: 8.7,
       fiveYear: 11.2
+    },
+    taxImplication: 'Long-term capital gains (>1 year): 10% above ₹1 lakh. Short-term (<1 year): 15%.',
+    currentHolding: {
+      units: 457.93,
+      value: 25000,
+      avgNav: 54.59
     }
   },
   'fund1': {
@@ -59,6 +66,12 @@ const fundsData: Record<string, any> = {
       oneYear: 12.5,
       threeYear: 8.7,
       fiveYear: 11.2
+    },
+    taxImplication: 'Long-term capital gains (>1 year): 10% above ₹1 lakh. Short-term (<1 year): 15%.',
+    currentHolding: {
+      units: 457.93,
+      value: 25000,
+      avgNav: 54.59
     }
   }
 };
@@ -79,6 +92,9 @@ const InvestmentOptionsPage: React.FC = () => {
   const [unitsToSell, setUnitsToSell] = useState<string>('');
   const [sellType, setSellType] = useState<'amount' | 'units' | 'all'>('amount');
   const [calendar, setCalendar] = useState<boolean>(false);
+  const [sipStepUpPercentage, setSipStepUpPercentage] = useState<number>(0);
+  const [showPastPerformance, setShowPastPerformance] = useState<boolean>(false);
+  const [showTaxInfo, setShowTaxInfo] = useState<boolean>(false);
   
   const quickAmounts = [1000, 5000, 10000, 25000];
   
@@ -136,6 +152,7 @@ const InvestmentOptionsPage: React.FC = () => {
           sipDate: sipDate ? format(sipDate, 'dd') : null,
           sipFrequency,
           sipDuration,
+          sipStepUpPercentage,
           nav: fund.nav
         }
       });
@@ -158,7 +175,10 @@ const InvestmentOptionsPage: React.FC = () => {
           amount: sellType === 'amount' ? parseInt(amount) : null,
           units: sellType === 'units' ? parseFloat(unitsToSell) : null,
           sellAll: sellType === 'all',
-          nav: fund.nav
+          currentValue: fund.currentHolding.value,
+          currentUnits: fund.currentHolding.units,
+          nav: fund.nav,
+          exitLoad: fund.exitLoad
         }
       });
     }
@@ -353,6 +373,31 @@ const InvestmentOptionsPage: React.FC = () => {
                         </div>
                       </div>
                     </div>
+                    
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          SIP Step-up <span className="text-xs text-gray-500">(Annual Increase)</span>
+                        </label>
+                        <span className="text-sm font-medium text-app-blue">{sipStepUpPercentage}%</span>
+                      </div>
+                      <Slider
+                        defaultValue={[0]}
+                        max={25}
+                        step={5}
+                        onValueChange={(value) => setSipStepUpPercentage(value[0])}
+                        className="mb-1"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>0%</span>
+                        <span>25%</span>
+                      </div>
+                      {sipStepUpPercentage > 0 && (
+                        <div className="mt-2 p-2 bg-blue-50 rounded-lg text-xs text-gray-700">
+                          Your SIP amount will increase by {sipStepUpPercentage}% every year.
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
                 
@@ -395,7 +440,7 @@ const InvestmentOptionsPage: React.FC = () => {
                   ))}
                 </div>
                 
-                <Accordion type="single" collapsible className="mb-6">
+                <Accordion type="multiple" className="mb-6">
                   <AccordionItem value="details">
                     <AccordionTrigger className="text-app-blue">
                       <div className="flex items-center">
@@ -428,6 +473,59 @@ const InvestmentOptionsPage: React.FC = () => {
                       </div>
                     </AccordionContent>
                   </AccordionItem>
+                  
+                  <AccordionItem value="performance">
+                    <AccordionTrigger className="text-app-blue">
+                      <div className="flex items-center">
+                        <TrendingUp size={16} className="mr-2" />
+                        Past Performance
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-3 py-2">
+                        <div className="flex justify-between">
+                          <div className="text-gray-600">1 Year Returns</div>
+                          <div className={`font-medium ${fund.returns.oneYear >= 0 ? 'text-app-green' : 'text-app-red'}`}>
+                            {fund.returns.oneYear >= 0 ? '+' : ''}{fund.returns.oneYear}%
+                          </div>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="text-gray-600">3 Years Returns</div>
+                          <div className={`font-medium ${fund.returns.threeYear >= 0 ? 'text-app-green' : 'text-app-red'}`}>
+                            {fund.returns.threeYear >= 0 ? '+' : ''}{fund.returns.threeYear}%
+                          </div>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="text-gray-600">5 Years Returns</div>
+                          <div className={`font-medium ${fund.returns.fiveYear >= 0 ? 'text-app-green' : 'text-app-red'}`}>
+                            {fund.returns.fiveYear >= 0 ? '+' : ''}{fund.returns.fiveYear}%
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1 bg-gray-50 p-2 rounded">
+                          Past performance is not indicative of future returns. Please read all scheme related documents carefully.
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="tax">
+                    <AccordionTrigger className="text-app-blue">
+                      <div className="flex items-center">
+                        <Percent size={16} className="mr-2" />
+                        Tax Implications
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-3 py-2">
+                        <p className="text-sm text-gray-700">
+                          {fund.taxImplication}
+                        </p>
+                        <div className="text-xs text-gray-500 mt-1 bg-gray-50 p-2 rounded">
+                          Tax implications may change based on government regulations. Please consult a tax advisor.
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
                 </Accordion>
               </div>
             </TabsContent>
@@ -442,15 +540,15 @@ const InvestmentOptionsPage: React.FC = () => {
                 <div className="flex justify-between">
                   <div>
                     <div className="text-sm text-gray-500 mb-1">Current Value</div>
-                    <div className="font-semibold">₹25,000</div>
+                    <div className="font-semibold">₹{fund.currentHolding.value.toLocaleString()}</div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-500 mb-1">Units Held</div>
-                    <div className="font-semibold">457.93</div>
+                    <div className="font-semibold">{fund.currentHolding.units}</div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-500 mb-1">Avg. NAV</div>
-                    <div className="font-semibold">₹54.59</div>
+                    <div className="font-semibold">₹{fund.currentHolding.avgNav}</div>
                   </div>
                 </div>
               </div>
@@ -498,8 +596,15 @@ const InvestmentOptionsPage: React.FC = () => {
                       />
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
-                      Maximum redemption amount: ₹25,000
+                      Maximum redemption amount: ₹{fund.currentHolding.value.toLocaleString()}
                     </p>
+                    {amount && parseInt(amount) > 0 && (
+                      <div className="mt-2 p-2 bg-gray-50 rounded-lg">
+                        <div className="text-sm">
+                          Approximate units to be redeemed: <span className="font-medium">{((parseInt(amount) || 0) / fund.nav).toFixed(3)}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
                 
@@ -516,21 +621,34 @@ const InvestmentOptionsPage: React.FC = () => {
                       className="text-lg font-semibold"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Maximum units available: 457.93
+                      Maximum units available: {fund.currentHolding.units}
                     </p>
+                    {unitsToSell && parseFloat(unitsToSell) > 0 && (
+                      <div className="mt-2 p-2 bg-gray-50 rounded-lg">
+                        <div className="text-sm">
+                          Approximate redemption value: <span className="font-medium">₹{((parseFloat(unitsToSell) || 0) * fund.nav).toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
                 
                 {sellType === 'all' && (
                   <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                     <div className="font-medium mb-2">You are about to redeem all units</div>
-                    <div className="text-sm text-gray-600">
-                      Total redemption value: ₹25,000 (457.93 units)
+                    <div className="text-sm text-gray-600 mb-2">
+                      Total redemption value: ₹{fund.currentHolding.value.toLocaleString()} ({fund.currentHolding.units} units)
+                    </div>
+                    <div className="flex items-start">
+                      <AlertCircle size={16} className="text-amber-500 mr-2 mt-0.5" />
+                      <div className="text-xs text-amber-700">
+                        Once you redeem all units, you will no longer be invested in this fund.
+                      </div>
                     </div>
                   </div>
                 )}
                 
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-6">
+                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
                   <div className="flex">
                     <HelpCircle size={18} className="text-yellow-600 mr-2 flex-shrink-0 mt-0.5" />
                     <div>
@@ -543,6 +661,27 @@ const InvestmentOptionsPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                
+                <Accordion type="single" collapsible className="mb-4">
+                  <AccordionItem value="tax">
+                    <AccordionTrigger className="text-app-blue">
+                      <div className="flex items-center">
+                        <Percent size={16} className="mr-2" />
+                        Tax Implications
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-3 py-2">
+                        <p className="text-sm text-gray-700">
+                          {fund.taxImplication}
+                        </p>
+                        <div className="text-xs text-gray-500 mt-1 bg-gray-50 p-2 rounded">
+                          Tax implications may change based on government regulations. Please consult a tax advisor.
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
             </TabsContent>
             
