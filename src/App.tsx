@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import OnboardingPage from "./pages/OnboardingPage";
+import AuthPage from "./pages/AuthPage";
+import VerificationPage from "./pages/VerificationPage";
+import SetupAccountPage from "./pages/SetupAccountPage";
+import HomePage from "./pages/HomePage";
+import PaymentsPage from "./pages/PaymentsPage";
+import SendMoneyPage from "./pages/SendMoneyPage";
+import InvestPage from "./pages/InvestPage";
+import FundDetailsPage from "./pages/FundDetailsPage";
 
 const queryClient = new QueryClient();
 
@@ -15,7 +25,15 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<OnboardingPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/verification" element={<VerificationPage />} />
+          <Route path="/setup" element={<SetupAccountPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/payments" element={<PaymentsPage />} />
+          <Route path="/payments/send" element={<SendMoneyPage />} />
+          <Route path="/invest" element={<InvestPage />} />
+          <Route path="/invest/fund/:fundId" element={<FundDetailsPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
