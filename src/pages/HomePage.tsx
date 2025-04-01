@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Search, Send, QrCode, CreditCard, Receipt, Gift, ChevronRight, Banknote, Plus, Calendar, Wallet, ShoppingBag, Users, TrendingUp } from 'lucide-react';
@@ -120,26 +119,14 @@ const HomePage: React.FC = () => {
           </button>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-1">
-            <PaymentCard 
-              cardNumber="4111111111111111"
-              cardHolder="Rahul Sharma"
-              expiryDate="09/26"
-              balance={42150}
-              cardType="visa"
-            />
-          </div>
-          <div className="col-span-1">
-            <Button 
-              variant="outline" 
-              className="h-full w-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl bg-white"
-              onClick={() => navigate('/cards/add')}
-            >
-              <Plus size={24} className="text-gray-400 mb-2" />
-              <p className="text-sm text-gray-500">Add New Card</p>
-            </Button>
-          </div>
+        <div className="grid grid-cols-1 gap-4">
+          <PaymentCard 
+            cardNumber="4111111111111111"
+            cardHolder="Rahul Sharma"
+            expiryDate="09/26"
+            balance={42150}
+            cardType="visa"
+          />
         </div>
       </div>
       
