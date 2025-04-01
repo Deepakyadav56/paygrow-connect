@@ -117,7 +117,8 @@ const ScanPayPage: React.FC = () => {
         </div>
       )}
       
-      <style jsx>{`
+      <style>
+        {`
         @keyframes scan {
           0% { top: 0; }
           50% { top: calc(100% - 2px); }
@@ -126,7 +127,8 @@ const ScanPayPage: React.FC = () => {
         .animate-scan {
           animation: scan 2s linear infinite;
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
