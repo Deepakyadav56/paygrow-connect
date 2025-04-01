@@ -1,7 +1,18 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Pie, BarChart, TrendingUp, Filter, Search, Info, ChevronRight, ArrowRight, PieChart, Award, Percent, Plus } from 'lucide-react';
+import { 
+  LineChart, 
+  PieChart, 
+  TrendingUp, 
+  Filter, 
+  Search, 
+  Info, 
+  ChevronRight, 
+  ArrowRight, 
+  Award, 
+  Percent, 
+  Plus 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
