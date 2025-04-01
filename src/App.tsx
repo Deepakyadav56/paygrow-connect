@@ -21,6 +21,8 @@ import MorePage from "./pages/MorePage";
 import BillCategoryPage from "./pages/BillCategoryPage";
 import MutualFundProviderPage from "./pages/MutualFundProviderPage";
 import InvestmentOptionsPage from "./pages/InvestmentOptionsPage";
+import InvestmentCategoryPage from "./pages/InvestmentCategoryPage";
+import InvestmentProviderPage from "./pages/InvestmentProviderPage";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,9 @@ const App = () => (
           <Route path="/invest/confirm" element={<InvestConfirmPage />} />
           <Route path="/invest/options/:fundId" element={<InvestmentOptionsPage />} />
           <Route path="/invest/mutual-funds" element={<MutualFundProviderPage />} />
+          <Route path="/invest/categories" element={<InvestmentCategoryPage />} />
+          <Route path="/invest/category/:categoryId" element={<InvestmentCategoryPage />} />
+          <Route path="/invest/provider/:providerId" element={<InvestmentProviderPage />} />
           <Route path="/bills" element={<BillsPage />} />
           <Route path="/bills/category/:categoryId" element={<BillCategoryPage />} />
           <Route path="/more" element={<MorePage />} />
