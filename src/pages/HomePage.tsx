@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Search, Send, QrCode, CreditCard, Receipt, Gift, ChevronRight, Banknote, Plus, Calendar, Wallet, ShoppingBag, Users, TrendingUp } from 'lucide-react';
@@ -24,6 +25,10 @@ const HomePage: React.FC = () => {
     { id: 'txn3', title: 'Amazon', description: 'Shopping', amount: 1299, date: '22 Jul, 6:45 PM', type: 'debit', category: 'Shopping' },
     { id: 'txn4', title: 'Reliance Mutual Fund', description: 'Investment', amount: 5000, date: '20 Jul, 11:30 AM', type: 'debit', category: 'Investment' },
   ];
+
+  const handleQuickAction = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <div className="app-container pb-20">
@@ -54,7 +59,10 @@ const HomePage: React.FC = () => {
         <div className="bg-white/10 rounded-xl p-4 mb-4">
           <div className="flex justify-between items-center mb-2">
             <p className="text-white/80 text-sm">Total Balance</p>
-            <button className="text-xs bg-white/20 rounded-full px-2 py-1 text-white">
+            <button 
+              onClick={() => navigate('/transaction-history')} 
+              className="text-xs bg-white/20 rounded-full px-2 py-1 text-white"
+            >
               View History
             </button>
           </div>
@@ -96,7 +104,7 @@ const HomePage: React.FC = () => {
             <button
               key={index}
               className="flex flex-col items-center space-y-2"
-              onClick={() => navigate(action.path)}
+              onClick={() => handleQuickAction(action.path)}
             >
               <div className={`w-14 h-14 rounded-full ${action.color} flex items-center justify-center`}>
                 {action.icon}
