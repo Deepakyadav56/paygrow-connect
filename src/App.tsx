@@ -23,6 +23,9 @@ import MutualFundProviderPage from "./pages/MutualFundProviderPage";
 import InvestmentOptionsPage from "./pages/InvestmentOptionsPage";
 import InvestmentCategoryPage from "./pages/InvestmentCategoryPage";
 import InvestmentProviderPage from "./pages/InvestmentProviderPage";
+import SIPCancelPage from "./pages/SIPCancelPage";
+import StartSIPPage from "./pages/StartSIPPage";
+import MutualFundFiltersPage from "./pages/MutualFundFiltersPage";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +51,9 @@ const App = () => (
           <Route path="/invest/categories" element={<InvestmentCategoryPage />} />
           <Route path="/invest/category/:categoryId" element={<InvestmentCategoryPage />} />
           <Route path="/invest/provider/:providerId" element={<InvestmentProviderPage />} />
+          <Route path="/invest/sip/start/:fundId" element={<StartSIPPage />} />
+          <Route path="/invest/sip/cancel/:sipId" element={<SIPCancelPage />} />
+          <Route path="/invest/filters" element={<MutualFundFiltersPage />} />
           <Route path="/bills" element={<BillsPage />} />
           <Route path="/bills/category/:categoryId" element={<BillCategoryPage />} />
           <Route path="/more" element={<MorePage />} />

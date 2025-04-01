@@ -6,6 +6,7 @@ import BottomNav from '@/components/BottomNav';
 import PaymentCard from '@/components/PaymentCard';
 import TransactionItem from '@/components/TransactionItem';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -119,17 +120,25 @@ const HomePage: React.FC = () => {
           </button>
         </div>
         
-        <div className="scroll-container pb-2">
-          <PaymentCard 
-            cardNumber="4111111111111111"
-            cardHolder="Rahul Sharma"
-            expiryDate="09/26"
-            balance={42150}
-            cardType="visa"
-          />
-          <div className="min-w-[200px] h-48 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center">
-            <Plus size={24} className="text-gray-400 mb-2" />
-            <p className="text-sm text-gray-500">Add New Card</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-1">
+            <PaymentCard 
+              cardNumber="4111111111111111"
+              cardHolder="Rahul Sharma"
+              expiryDate="09/26"
+              balance={42150}
+              cardType="visa"
+            />
+          </div>
+          <div className="col-span-1">
+            <Button 
+              variant="outline" 
+              className="h-full w-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl bg-white"
+              onClick={() => navigate('/cards/add')}
+            >
+              <Plus size={24} className="text-gray-400 mb-2" />
+              <p className="text-sm text-gray-500">Add New Card</p>
+            </Button>
           </div>
         </div>
       </div>

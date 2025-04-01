@@ -46,8 +46,8 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
   };
 
   return (
-    <div className="gradient-card p-5 text-white w-full max-w-sm">
-      <div className="flex justify-between items-start mb-8">
+    <div className="bg-gradient-to-r from-app-blue to-app-teal rounded-xl p-5 text-white w-full relative overflow-hidden">
+      <div className="flex justify-between items-start mb-6">
         <div className="flex items-center">
           <CreditCard size={24} className="mr-2" />
           <span className="font-semibold">PayGrow Card</span>
@@ -62,8 +62,8 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
         <div className="text-2xl font-bold">{formatCurrency(balance)}</div>
       </div>
       
-      <div className="flex justify-between items-end">
-        <div>
+      <div className="flex flex-col">
+        <div className="mb-2">
           <div className="text-sm opacity-80 mb-1">Card Number</div>
           <div className="flex items-center">
             <div className="font-medium">{formatCardNumber(cardNumber)}</div>
@@ -76,13 +76,19 @@ const PaymentCard: React.FC<PaymentCardProps> = ({
           </div>
         </div>
         
-        <div className="text-right">
-          <div className="text-sm opacity-80 mb-1">Expiry</div>
-          <div className="font-medium">{expiryDate}</div>
+        <div className="flex justify-between items-end">
+          <div className="text-sm font-medium">
+            {cardHolder.toUpperCase()}
+          </div>
+          
+          <div className="flex items-center">
+            <div className="flex flex-col items-end">
+              <div className="text-xs opacity-80">Expiry</div>
+              <div className="font-medium">{expiryDate}</div>
+            </div>
+          </div>
         </div>
       </div>
-      
-      <div className="mt-6 text-sm font-medium">{cardHolder.toUpperCase()}</div>
     </div>
   );
 };
