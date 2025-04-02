@@ -1,18 +1,23 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { AlertCircle, Lightbulb, TrendingUp, PieChart } from 'lucide-react';
+import { AlertCircle, Lightbulb, TrendingUp, PieChart, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface Insight {
   id: string;
   type: 'tip' | 'alert' | 'recommendation' | 'analysis';
   title: string;
   description: string;
+  actionLink?: string;
+  actionText?: string;
 }
 
 interface InvestmentInsightsProps {
   insights: Insight[];
   maxItems?: number;
+  viewAllLink?: string;
 }
 
 const getInsightIcon = (type: Insight['type']) => {
@@ -45,27 +50,50 @@ const getInsightColor = (type: Insight['type']) => {
   }
 };
 
-const InvestmentInsights: React.FC<InvestmentInsightsProps> = ({ insights, maxItems = 3 }) => {
+const InvestmentInsights: React.FC<InvestmentInsightsProps> = ({ insights, maxItems = 3, viewAllLink }) => {
+  const navigate = useNavigate();
   const displayInsights = insights.slice(0, maxItems);
   
   return (
-    <Card className="border-none shadow-sm">
-      <div className="px-4 pt-4 pb-2">
+    <Card className="border-none shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div className="px-4 pt-4 pb-2 flex justify-between items-center">
         <h3 className="font-medium text-lg">Investment Insights</h3>
+        {viewAllLink && (
+          <Button 
+            variant="ghost" 
+            className="p-0 h-auto text-app-blue text-sm"
+            onClick={() => navigate(viewAllLink)}
+          >
+            View All <ChevronRight size={16} />
+          </Button>
+        )}
       </div>
       <CardContent className="p-4 space-y-3">
         {displayInsights.map((insight) => (
           <div 
             key={insight.id} 
-            className={`p-3 rounded-lg border ${getInsightColor(insight.type)}`}
+            className={`p-3 rounded-lg border ${getInsightColor(insight.type)} ${insight.actionLink ? 'cursor-pointer' : ''}`}
+            onClick={() => insight.actionLink && navigate(insight.actionLink)}
           >
             <div className="flex items-start">
               <div className="mr-3 mt-0.5">
                 {getInsightIcon(insight.type)}
               </div>
-              <div>
+              <div className="flex-1">
                 <h4 className="font-medium text-sm">{insight.title}</h4>
                 <p className="text-xs text-gray-600 mt-1">{insight.description}</p>
+                {insight.actionLink && insight.actionText && (
+                  <Button 
+                    variant="ghost" 
+                    className="p-0 h-auto text-app-blue text-xs mt-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(insight.actionLink!);
+                    }}
+                  >
+                    {insight.actionText} <ChevronRight size={12} />
+                  </Button>
+                )}
               </div>
             </div>
           </div>

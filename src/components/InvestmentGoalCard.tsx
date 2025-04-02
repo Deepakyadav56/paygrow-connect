@@ -2,7 +2,9 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Target, TrendingUp, Award } from 'lucide-react';
+import { Target, TrendingUp, Award, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface InvestmentGoalProps {
   title: string;
@@ -10,6 +12,7 @@ interface InvestmentGoalProps {
   currentAmount: number;
   dueDate?: string;
   iconType?: 'target' | 'trending' | 'award';
+  actionLink?: string;
 }
 
 const InvestmentGoalCard: React.FC<InvestmentGoalProps> = ({
@@ -17,8 +20,10 @@ const InvestmentGoalCard: React.FC<InvestmentGoalProps> = ({
   targetAmount,
   currentAmount,
   dueDate,
-  iconType = 'target'
+  iconType = 'target',
+  actionLink
 }) => {
+  const navigate = useNavigate();
   const progress = Math.min(Math.round((currentAmount / targetAmount) * 100), 100);
   
   const getIcon = () => {
@@ -35,7 +40,7 @@ const InvestmentGoalCard: React.FC<InvestmentGoalProps> = ({
   };
 
   return (
-    <Card className="border-none shadow-sm overflow-hidden">
+    <Card className="border-none shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
       <CardContent className="p-4">
         <div className="flex items-center mb-3">
           <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
@@ -65,6 +70,17 @@ const InvestmentGoalCard: React.FC<InvestmentGoalProps> = ({
             <p className="font-medium">₹{targetAmount.toLocaleString('en-IN')}</p>
           </div>
         </div>
+        
+        {actionLink && (
+          <Button 
+            variant="ghost" 
+            className="w-full mt-3 flex justify-between items-center text-app-blue"
+            onClick={() => navigate(actionLink)}
+          >
+            <span>View Details</span>
+            <ArrowRight size={16} />
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
