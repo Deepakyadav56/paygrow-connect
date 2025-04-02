@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { AlertCircle, Lightbulb, TrendingUp, PieChart, ChevronRight, LineChart, ArrowUpRight, Target, Star } from 'lucide-react';
+import { AlertCircle, Lightbulb, TrendingUp, PieChart, ChevronRight, LineChart, ArrowUpRight, Target, Star, Calendar, BadgePercent, Calculator } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 interface Insight {
   id: string;
-  type: 'tip' | 'alert' | 'recommendation' | 'analysis' | 'opportunity' | 'trending' | 'top';
+  type: 'tip' | 'alert' | 'recommendation' | 'analysis' | 'opportunity' | 'trending' | 'top' | 'sip' | 'tax';
   title: string;
   description: string;
   actionLink?: string;
@@ -36,6 +36,10 @@ const getInsightIcon = (type: Insight['type']) => {
       return <LineChart className="text-indigo-500" size={18} />;
     case 'top':
       return <Star className="text-amber-500" size={18} />;
+    case 'sip':
+      return <Calendar className="text-teal-500" size={18} />;
+    case 'tax':
+      return <Calculator className="text-gray-600" size={18} />;
     default:
       return <Lightbulb className="text-app-orange" size={18} />;
   }
@@ -57,6 +61,10 @@ const getInsightColor = (type: Insight['type']) => {
       return 'bg-indigo-50 border-indigo-100';
     case 'top':
       return 'bg-amber-50 border-amber-100';
+    case 'sip':
+      return 'bg-teal-50 border-teal-100';
+    case 'tax':
+      return 'bg-gray-50 border-gray-200';
     default:
       return 'bg-gray-50 border-gray-200';
   }

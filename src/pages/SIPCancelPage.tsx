@@ -1,93 +1,84 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, Check, X, Calendar } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { AlertCircle, Calendar, CheckCircle2, Clock, PauseCircle, X, Calendar as CalendarIcon, ArrowUpRight, Info } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const SIPCancelPage: React.FC = () => {
   const navigate = useNavigate();
   const { sipId } = useParams();
-  const [cancelType, setCancelType] = useState('permanent');
-  const [reason, setReason] = useState('');
-  const [pauseMonths, setPauseMonths] = useState('3');
+  const [action, setAction] = useState<'pause' | 'cancel'>('pause');
+  const [pauseDuration, setPauseDuration] = useState<'1_month' | '3_months' | '6_months'>('1_month');
+  const [reason, setReason] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isCancelled, setIsCancelled] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   // Mock SIP data
   const sipData = {
-    id: sipId || 'sip-1',
-    fundName: 'HDFC Flexi Cap Fund',
-    installmentAmount: 2500,
+    id: sipId || 'sip1',
+    fundName: 'HDFC Mid-Cap Opportunities Fund',
+    category: 'Equity - Mid Cap',
+    amount: 2500,
     frequency: 'Monthly',
-    startDate: '05 Jan, 2023',
-    nextInstallmentDate: '05 Aug, 2023',
-    totalInvested: 20000,
-    currentValue: 21200,
-    returns: 6.0,
-    folioNumber: 'HD123456789',
+    startDate: '15 Jul 2022',
+    nextDate: '15 May 2023',
+    completedInstallments: 10,
+    totalAmount: 25000,
+    status: 'Active',
+    bankAccount: 'HDFC Bank - XXXX6789'
   };
 
-  const cancelReasons = [
-    'Need funds for personal expense',
-    'Not satisfied with fund performance',
-    'Switching to another fund',
-    'Financial emergency',
-    'Taking a break from investments',
-    'Other'
-  ];
+  const pausePeriodMap = {
+    '1_month': '1 month (until 15 Jun 2023)',
+    '3_months': '3 months (until 15 Aug 2023)',
+    '6_months': '6 months (until 15 Nov 2023)'
+  };
 
-  const handleCancel = () => {
-    if (!reason) {
-      toast.error('Please select a reason for cancellation');
-      return;
-    }
-
-    if (cancelType === 'pause' && !pauseMonths) {
-      toast.error('Please select pause duration');
-      return;
-    }
-
+  const handleSubmit = () => {
     setIsProcessing(true);
     
-    // Simulate API call
+    // Simulate API request
     setTimeout(() => {
       setIsProcessing(false);
-      setIsCancelled(true);
-      toast.success(cancelType === 'permanent' ? 'SIP cancelled successfully' : 'SIP paused successfully');
+      setIsConfirmed(true);
+      
+      if (action === 'pause') {
+        toast.success(`SIP paused successfully for ${pausePeriodMap[pauseDuration]}`);
+      } else {
+        toast.success('SIP cancelled successfully');
+      }
     }, 1500);
   };
 
-  if (isCancelled) {
+  // Success view after confirmation
+  if (isConfirmed) {
     return (
       <div className="app-container">
-        <Header title={cancelType === 'permanent' ? "Cancel SIP" : "Pause SIP"} showBack />
+        <Header title={action === 'pause' ? 'SIP Paused' : 'SIP Cancelled'} showBack />
         
         <div className="p-4 flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-            <Check size={32} className="text-green-600" />
+          <div className={`w-16 h-16 rounded-full ${action === 'pause' ? 'bg-amber-100' : 'bg-green-100'} flex items-center justify-center mb-4`}>
+            {action === 'pause' ? 
+              <PauseCircle size={32} className="text-amber-600" /> : 
+              <CheckCircle2 size={32} className="text-green-600" />
+            }
           </div>
           
           <h2 className="text-xl font-semibold mb-2">
-            {cancelType === 'permanent' ? 'SIP Cancelled Successfully' : 'SIP Paused Successfully'}
+            {action === 'pause' ? 'SIP Paused Successfully' : 'SIP Cancelled Successfully'}
           </h2>
           <p className="text-gray-600 mb-6">
-            {cancelType === 'permanent' 
-              ? `Your SIP for ${sipData.fundName} has been cancelled successfully.`
-              : `Your SIP for ${sipData.fundName} has been paused for ${pauseMonths} months.`
+            {action === 'pause' ? 
+              `Your SIP for ${sipData.fundName} has been paused for ${pausePeriodMap[pauseDuration]}.` : 
+              `Your SIP for ${sipData.fundName} has been cancelled.`
             }
           </p>
           
@@ -99,41 +90,34 @@ const SIPCancelPage: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Fund Name</span>
-                  <span className="font-medium">{sipData.fundName}</span>
+                  <span className="font-medium text-right flex-1 ml-4">{sipData.fundName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Folio Number</span>
-                  <span className="font-medium">{sipData.folioNumber}</span>
+                  <span className="text-gray-600">SIP Amount</span>
+                  <span className="font-medium">₹{sipData.amount.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Installment Amount</span>
-                  <span className="font-medium">₹{sipData.installmentAmount}</span>
+                  <span className="text-gray-600">Frequency</span>
+                  <span className="font-medium">{sipData.frequency}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Start Date</span>
+                  <span className="text-gray-600">Started On</span>
                   <span className="font-medium">{sipData.startDate}</span>
                 </div>
-                {cancelType === 'permanent' && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Status</span>
+                  <Badge variant="outline" className={`${action === 'pause' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+                    {action === 'pause' ? 'Paused' : 'Cancelled'}
+                  </Badge>
+                </div>
+                {action === 'pause' && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Cancelled On</span>
-                    <span className="font-medium">{new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                    <span className="text-gray-600">Resume Date</span>
+                    <span className="font-medium">
+                      {pauseDuration === '1_month' ? '15 Jun 2023' : 
+                       pauseDuration === '3_months' ? '15 Aug 2023' : '15 Nov 2023'}
+                    </span>
                   </div>
-                )}
-                {cancelType === 'pause' && (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Paused On</span>
-                      <span className="font-medium">{new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Resume Date</span>
-                      <span className="font-medium">
-                        {new Date(new Date().setMonth(new Date().getMonth() + parseInt(pauseMonths, 10))).toLocaleDateString('en-IN', { 
-                          day: '2-digit', month: 'short', year: 'numeric' 
-                        })}
-                      </span>
-                    </div>
-                  </>
                 )}
               </div>
             </CardContent>
@@ -142,17 +126,19 @@ const SIPCancelPage: React.FC = () => {
           <div className="w-full space-y-3">
             <Button 
               className="w-full" 
-              variant="outline"
               onClick={() => navigate('/invest')}
             >
               Go to Investments
             </Button>
-            <Button 
-              className="w-full"
-              onClick={() => navigate('/invest/mutual-funds')}
-            >
-              Explore More Funds
-            </Button>
+            {action === 'pause' && (
+              <Button 
+                className="w-full"
+                variant="outline"
+                onClick={() => navigate('/sip/management')}
+              >
+                Manage SIPs
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -164,156 +150,166 @@ const SIPCancelPage: React.FC = () => {
       <Header title="Manage SIP" showBack />
       
       <div className="p-4">
-        <Card className="mb-4 border-yellow-200">
+        <Card className="mb-4">
           <CardHeader className="pb-2 pt-4">
-            <div className="flex items-start">
-              <AlertTriangle size={20} className="text-yellow-600 mr-2 flex-shrink-0 mt-0.5" />
-              <div>
-                <CardTitle className="text-lg">Important Information</CardTitle>
-                <CardDescription className="mt-1">
-                  {cancelType === 'permanent' 
-                    ? 'Cancelling your SIP will stop all future installments. Your existing investments will remain as is.'
-                    : 'Pausing your SIP will temporarily stop your installments for the selected duration and will automatically resume after that period.'
-                  }
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-        
-        <Card className="mb-6">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">SIP Details</CardTitle>
+            <CardTitle className="text-lg">{sipData.fundName}</CardTitle>
+            <CardDescription>{sipData.category}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Fund Name</span>
-                <span className="font-medium">{sipData.fundName}</span>
+            <div className="grid grid-cols-2 gap-4 mb-3">
+              <div>
+                <p className="text-xs text-gray-500">SIP Amount</p>
+                <p className="font-medium">₹{sipData.amount.toLocaleString('en-IN')}</p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Installment Amount</span>
-                <span className="font-medium">₹{sipData.installmentAmount}</span>
+              <div>
+                <p className="text-xs text-gray-500">Frequency</p>
+                <p className="font-medium">{sipData.frequency}</p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Frequency</span>
-                <span className="font-medium">{sipData.frequency}</span>
+              <div>
+                <p className="text-xs text-gray-500">Start Date</p>
+                <p className="font-medium">{sipData.startDate}</p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Next Installment</span>
-                <span className="font-medium">{sipData.nextInstallmentDate}</span>
+              <div>
+                <p className="text-xs text-gray-500">Next SIP Date</p>
+                <p className="font-medium">{sipData.nextDate}</p>
               </div>
-              <Separator />
-              <div className="flex justify-between">
-                <span className="text-gray-600">Total Invested</span>
-                <span className="font-medium">₹{sipData.totalInvested}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Current Value</span>
-                <span className="font-medium">₹{sipData.currentValue}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Returns</span>
-                <span className="text-green-600 font-medium">+{sipData.returns}%</span>
+            </div>
+            
+            <div className="flex items-center mt-2 pt-2 border-t border-gray-100">
+              <Badge className="bg-green-100 text-green-800 border-green-200">
+                {sipData.status}
+              </Badge>
+              <div className="text-xs text-gray-600 ml-2">
+                {sipData.completedInstallments} installments completed (₹{sipData.totalAmount.toLocaleString('en-IN')})
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-3">
-            What would you like to do?
-          </label>
-          <RadioGroup value={cancelType} onValueChange={setCancelType} className="space-y-3">
-            <div className="flex items-center space-x-2 border p-3 rounded-md">
-              <RadioGroupItem value="permanent" id="option-permanent" />
-              <Label htmlFor="option-permanent" className="cursor-pointer flex-1">
-                <div className="font-medium">Cancel SIP Permanently</div>
-                <p className="text-xs text-gray-500 mt-1">Stop all future installments</p>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2 border p-3 rounded-md">
-              <RadioGroupItem value="pause" id="option-pause" />
-              <Label htmlFor="option-pause" className="cursor-pointer flex-1">
-                <div className="font-medium">Pause SIP Temporarily</div>
-                <p className="text-xs text-gray-500 mt-1">Stop installments for a specific period</p>
-              </Label>
-            </div>
-          </RadioGroup>
-        </div>
-        
-        {cancelType === 'pause' && (
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">
-              Pause Duration
-            </label>
-            <Select value={pauseMonths} onValueChange={setPauseMonths}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select pause duration" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1 Month</SelectItem>
-                <SelectItem value="3">3 Months</SelectItem>
-                <SelectItem value="6">6 Months</SelectItem>
-                <SelectItem value="12">12 Months</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex items-center mt-2 text-xs text-gray-600">
-              <Calendar size={14} className="mr-1 text-app-blue" />
-              Will resume on: {pauseMonths && new Date(new Date().setMonth(new Date().getMonth() + parseInt(pauseMonths, 10))).toLocaleDateString('en-IN', { 
-                day: '2-digit', month: 'short', year: 'numeric' 
-              })}
-            </div>
-          </div>
-        )}
-        
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">
-            Reason for {cancelType === 'permanent' ? 'Cancellation' : 'Pausing'}
-          </label>
-          <Select onValueChange={setReason} value={reason}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a reason" />
-            </SelectTrigger>
-            <SelectContent>
-              {cancelReasons.map((cancelReason) => (
-                <SelectItem key={cancelReason} value={cancelReason}>
-                  {cancelReason}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Tabs defaultValue="pause" className="mb-4" onValueChange={(value) => setAction(value as 'pause' | 'cancel')}>
+          <TabsList className="grid grid-cols-2 mb-4">
+            <TabsTrigger value="pause">Pause SIP</TabsTrigger>
+            <TabsTrigger value="cancel">Cancel SIP</TabsTrigger>
+          </TabsList>
           
-          {reason === 'Other' && (
-            <div className="mt-3">
-              <Textarea 
-                placeholder="Please specify your reason..."
-                className="resize-none"
-                rows={3}
-              />
-            </div>
-          )}
+          <TabsContent value="pause">
+            <Card className="border-amber-200">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Pause SIP</CardTitle>
+                <CardDescription>
+                  Temporarily pause your SIP for a specific period
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <h4 className="font-medium text-sm mb-2">Select Pause Duration</h4>
+                  <RadioGroup value={pauseDuration} onValueChange={(value) => setPauseDuration(value as '1_month' | '3_months' | '6_months')}>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <RadioGroupItem value="1_month" id="r1" />
+                      <Label htmlFor="r1" className="font-normal">1 month (until 15 Jun 2023)</Label>
+                    </div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <RadioGroupItem value="3_months" id="r2" />
+                      <Label htmlFor="r2" className="font-normal">3 months (until 15 Aug 2023)</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="6_months" id="r3" />
+                      <Label htmlFor="r3" className="font-normal">6 months (until 15 Nov 2023)</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+                
+                <div className="flex items-start p-3 bg-amber-50 rounded-lg">
+                  <Info size={18} className="text-amber-600 mr-2 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-gray-700">
+                    <p>Your SIP will automatically resume after the selected pause period. You can resume it earlier from the SIP Management section.</p>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col gap-3">
+                <Button 
+                  className="w-full" 
+                  onClick={handleSubmit}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? 'Processing...' : 'Confirm Pause'}
+                </Button>
+                <Button 
+                  className="w-full" 
+                  variant="outline"
+                  onClick={() => navigate(-1)}
+                  disabled={isProcessing}
+                >
+                  Cancel
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
           
-          <p className="text-xs text-gray-500 mt-2">
-            Your feedback helps us improve our services.
-          </p>
-        </div>
+          <TabsContent value="cancel">
+            <Card className="border-red-200">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Cancel SIP</CardTitle>
+                <CardDescription>
+                  Permanently cancel your SIP
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="p-3 bg-red-50 rounded-lg mb-4">
+                  <div className="flex items-start">
+                    <AlertCircle size={18} className="text-red-600 mr-2 mt-0.5 flex-shrink-0" />
+                    <div className="text-xs text-gray-700">
+                      <p className="font-medium mb-1">Important Information</p>
+                      <p>Cancelling your SIP will stop all future payments. Your invested amount will remain invested until you redeem. This action cannot be undone.</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <h4 className="font-medium text-sm mb-2">Reason for Cancellation (Optional)</h4>
+                  <select 
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                  >
+                    <option value="">Select a reason</option>
+                    <option value="financial">Financial constraints</option>
+                    <option value="performance">Poor fund performance</option>
+                    <option value="alternative">Found better investment alternative</option>
+                    <option value="emergency">Emergency need for money</option>
+                    <option value="other">Other reason</option>
+                  </select>
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col gap-3">
+                <Button 
+                  className="w-full bg-red-600 hover:bg-red-700" 
+                  onClick={handleSubmit}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? 'Processing...' : 'Confirm Cancellation'}
+                </Button>
+                <Button 
+                  className="w-full" 
+                  variant="outline"
+                  onClick={() => navigate(-1)}
+                  disabled={isProcessing}
+                >
+                  Go Back
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
         
-        <div className="space-y-3">
+        <div className="mt-4">
           <Button 
-            className={`w-full ${cancelType === 'permanent' ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'}`}
-            onClick={handleCancel}
-            disabled={isProcessing}
+            variant="ghost" 
+            className="w-full flex justify-between items-center"
+            onClick={() => navigate('/sip/management')}
           >
-            {isProcessing ? 'Processing...' : cancelType === 'permanent' ? 'Cancel SIP' : 'Pause SIP'}
-          </Button>
-          <Button 
-            className="w-full" 
-            variant="outline"
-            onClick={() => navigate(-1)}
-            disabled={isProcessing}
-          >
-            Go Back
+            <span>View All SIPs</span>
+            <ArrowUpRight size={16} />
           </Button>
         </div>
       </div>

@@ -2,7 +2,9 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { ArrowUp, ArrowDown, TrendingUp } from 'lucide-react';
+import { ArrowUp, ArrowDown, TrendingUp, Info, ArrowUpRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface AssetAllocation {
   name: string;
@@ -16,6 +18,8 @@ interface PortfolioSummaryProps {
   returns: number;
   returnsPercentage: number;
   assetAllocation: AssetAllocation[];
+  sipCount?: number;
+  activeGoals?: number;
 }
 
 const RADIAN = Math.PI / 180;
@@ -51,26 +55,38 @@ const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({
   investedAmount,
   returns,
   returnsPercentage,
-  assetAllocation
+  assetAllocation,
+  sipCount = 0,
+  activeGoals = 0
 }) => {
+  const navigate = useNavigate();
   const isPositive = returns >= 0;
   
   return (
-    <Card className="border-none shadow-sm overflow-hidden bg-gradient-to-br from-white to-gray-50">
-      <CardContent className="p-4">
+    <Card className="border-none shadow-sm overflow-hidden bg-gradient-to-br from-white to-gray-50 rounded-xl">
+      <CardContent className="p-5">
         <div className="mb-4">
-          <p className="text-sm text-gray-500">Total Portfolio Value</p>
-          <h2 className="text-2xl font-bold">₹{totalValue.toLocaleString('en-IN')}</h2>
+          <p className="text-sm text-gray-500 mb-1">Total Portfolio Value</p>
+          <div className="flex items-end">
+            <h2 className="text-2xl font-bold">₹{totalValue.toLocaleString('en-IN')}</h2>
+            <div className={`flex items-center ml-2 text-sm ${isPositive ? 'text-app-green' : 'text-app-red'}`}>
+              {isPositive ? <ArrowUp size={14} className="mr-0.5" /> : <ArrowDown size={14} className="mr-0.5" />}
+              <span className="font-medium">
+                {isPositive ? '+' : ''}{returnsPercentage.toFixed(2)}%
+              </span>
+            </div>
+          </div>
           
-          <div className={`flex items-center mt-1 ${isPositive ? 'text-app-green' : 'text-app-red'}`}>
-            {isPositive ? <ArrowUp size={16} className="mr-1" /> : <ArrowDown size={16} className="mr-1" />}
-            <span className="font-medium">
-              {isPositive ? '+' : ''}₹{returns.toLocaleString('en-IN')} ({isPositive ? '+' : ''}{returnsPercentage.toFixed(2)}%)
+          <div className="flex items-center mt-1 text-sm text-gray-600">
+            <span>Invested: ₹{investedAmount.toLocaleString('en-IN')}</span>
+            <span className="mx-2">•</span>
+            <span className={isPositive ? 'text-app-green' : 'text-app-red'}>
+              Returns: {isPositive ? '+' : ''}₹{returns.toLocaleString('en-IN')}
             </span>
           </div>
         </div>
 
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row md:items-center">
           <div className="w-32 h-32">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -93,7 +109,8 @@ const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({
             </ResponsiveContainer>
           </div>
           
-          <div className="flex-1 ml-4 space-y-3">
+          <div className="flex-1 ml-0 md:ml-4 space-y-2 mt-3 md:mt-0">
+            <h4 className="font-medium text-sm">Asset Allocation</h4>
             {assetAllocation.map((item) => (
               <div key={item.name} className="flex justify-between items-center">
                 <div className="flex items-center">
@@ -103,19 +120,37 @@ const PortfolioSummary: React.FC<PortfolioSummaryProps> = ({
                 <div className="text-sm font-medium">{((item.value / totalValue) * 100).toFixed(0)}%</div>
               </div>
             ))}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="px-0 text-app-blue hover:bg-transparent"
+              onClick={() => navigate('/portfolio/allocation')}
+            >
+              View Details <ArrowUpRight size={14} className="ml-1" />
+            </Button>
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
-          <div className="text-center px-4 py-2 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-500 mb-1">Invested Amount</p>
-            <p className="font-medium">₹{investedAmount.toLocaleString('en-IN')}</p>
+        <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
+          <div 
+            className="px-4 py-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 cursor-pointer transition-colors"
+            onClick={() => navigate('/sip/management')}
+          >
+            <div className="flex justify-between">
+              <p className="text-xs text-gray-500">Active SIPs</p>
+              <TrendingUp size={16} className="text-app-green" />
+            </div>
+            <p className="font-medium mt-1">{sipCount}</p>
           </div>
-          <div className="text-center px-4 py-2 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-500 mb-1">XIRR</p>
-            <p className={`font-medium ${isPositive ? 'text-app-green' : 'text-app-red'}`}>
-              {isPositive ? '+' : ''}{(returnsPercentage * 0.87).toFixed(2)}%
-            </p>
+          <div 
+            className="px-4 py-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 cursor-pointer transition-colors"
+            onClick={() => navigate('/invest/goals')}
+          >
+            <div className="flex justify-between">
+              <p className="text-xs text-gray-500">Investment Goals</p>
+              <Info size={16} className="text-app-blue" />
+            </div>
+            <p className="font-medium mt-1">{activeGoals}</p>
           </div>
         </div>
       </CardContent>
