@@ -3,9 +3,9 @@ import React from 'react';
 import { Calendar, ArrowDown, ArrowUp, BarChart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
-type ActivityType = 'sip_payment' | 'investment' | 'redemption' | 'dividend';
+export type ActivityType = 'sip_payment' | 'investment' | 'redemption' | 'dividend';
 
-interface Activity {
+export interface Activity {
   id: string;
   type: ActivityType;
   date: string;

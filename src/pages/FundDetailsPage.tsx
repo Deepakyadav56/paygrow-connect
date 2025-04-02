@@ -11,7 +11,7 @@ import FundPerformanceCard from '@/components/FundPerformanceCard';
 import FundHoldings from '@/components/FundHoldings';
 import FundPerfChart from '@/components/FundPerfChart';
 import InvestmentComparisonChart from '@/components/InvestmentComparisonChart';
-import RecentActivity from '@/components/RecentActivity';
+import RecentActivity, { ActivityType } from '@/components/RecentActivity';
 
 // Mock fund data
 const getFundDetails = (fundId: string) => {
@@ -118,7 +118,7 @@ const getFundDetails = (fundId: string) => {
     recentActivities: [
       { 
         id: '1', 
-        type: 'sip_payment', 
+        type: 'sip_payment' as ActivityType, 
         date: '10 Jul 2024', 
         amount: fundId === 'fund1' ? 5000 : 2000, 
         fundName: fundId === 'fund1' ? 'HDFC Mid-Cap Opportunities Fund' : 'Axis Bluechip Fund', 
@@ -126,7 +126,7 @@ const getFundDetails = (fundId: string) => {
       },
       { 
         id: '2', 
-        type: 'investment', 
+        type: 'investment' as ActivityType, 
         date: '15 Jun 2024', 
         amount: fundId === 'fund1' ? 10000 : 5000, 
         fundName: fundId === 'fund1' ? 'HDFC Mid-Cap Opportunities Fund' : 'Axis Bluechip Fund', 
@@ -134,7 +134,7 @@ const getFundDetails = (fundId: string) => {
       },
       { 
         id: '3', 
-        type: 'dividend', 
+        type: 'dividend' as ActivityType, 
         date: '22 May 2024', 
         amount: fundId === 'fund1' ? 1250 : 850, 
         fundName: fundId === 'fund1' ? 'HDFC Mid-Cap Opportunities Fund' : 'Axis Bluechip Fund', 
