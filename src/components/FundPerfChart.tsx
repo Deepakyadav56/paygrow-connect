@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export interface ChartData {
   month: string;
@@ -40,7 +40,7 @@ const FundPerfChart: React.FC<FundPerfChartProps> = ({
   fullView = false 
 }) => {
   return (
-    <div className={fullView ? "h-80" : "h-60"}>
+    <div className={`${fullView ? "h-80" : "h-60"} bg-white rounded-xl shadow-sm p-4 border border-gray-100`}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
@@ -61,6 +61,12 @@ const FundPerfChart: React.FC<FundPerfChartProps> = ({
             tickFormatter={(value) => `₹${value}`}
           />
           <Tooltip content={<CustomTooltip />} />
+          <Legend 
+            verticalAlign="top" 
+            height={36}
+            iconType="circle"
+            wrapperStyle={{ fontSize: '12px', paddingBottom: '10px' }}
+          />
           <Line 
             type="monotone" 
             dataKey="value" 

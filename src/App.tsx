@@ -29,6 +29,7 @@ import MutualFundFiltersPage from "./pages/MutualFundFiltersPage";
 import TransactionHistoryPage from "./pages/TransactionHistoryPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import ScanPayPage from "./pages/ScanPayPage";
+import SIPManagementPage from "./pages/SIPManagementPage";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
           <Route path="/invest/sip/start/:fundId" element={<StartSIPPage />} />
           <Route path="/invest/sip/cancel/:sipId" element={<SIPCancelPage />} />
           <Route path="/invest/sip/modify/:fundId" element={<StartSIPPage />} />
+          <Route path="/invest/sip/management" element={<SIPManagementPage />} />
           <Route path="/invest/filters" element={<MutualFundFiltersPage />} />
           <Route path="/bills" element={<BillsPage />} />
           <Route path="/bills/category/:categoryId" element={<BillCategoryPage />} />

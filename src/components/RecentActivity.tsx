@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, ArrowDown, ArrowUp, BarChart } from 'lucide-react';
+import { Calendar, ArrowDown, ArrowUp, BarChart, AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 export type ActivityType = 'sip_payment' | 'investment' | 'redemption' | 'dividend';
@@ -58,9 +58,9 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
   const displayActivities = activities.slice(0, maxItems);
   
   return (
-    <Card className="shadow-sm border-none">
+    <Card className="shadow-sm border-none overflow-hidden">
       {showTitle && (
-        <div className="px-4 pt-4 pb-2">
+        <div className="px-4 pt-4 pb-2 border-b border-gray-100">
           <h3 className="font-medium text-lg">Recent Activity</h3>
         </div>
       )}
@@ -68,7 +68,7 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
         {displayActivities.length > 0 ? (
           <div className="divide-y">
             {displayActivities.map((activity) => (
-              <div key={activity.id} className="p-4 flex items-center">
+              <div key={activity.id} className="p-4 flex items-center hover:bg-gray-50 transition-colors">
                 <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
                   {getActivityIcon(activity.type)}
                 </div>
@@ -88,8 +88,10 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
             ))}
           </div>
         ) : (
-          <div className="p-4 text-center text-gray-500">
-            No recent activity to display
+          <div className="p-6 text-center text-gray-500 flex flex-col items-center">
+            <AlertCircle className="h-12 w-12 text-gray-300 mb-2" />
+            <p>No recent activity to display</p>
+            <p className="text-xs mt-1">Your transactions will appear here</p>
           </div>
         )}
       </CardContent>
