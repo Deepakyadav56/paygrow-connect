@@ -8,8 +8,10 @@ interface HeaderProps {
   showBack?: boolean;
   showProfile?: boolean;
   showNotification?: boolean;
+  showNotificationBadge?: boolean;
   showSearch?: boolean;
   transparent?: boolean;
+  largeTitle?: boolean;
   children?: React.ReactNode;
 }
 
@@ -18,8 +20,10 @@ const Header: React.FC<HeaderProps> = ({
   showBack = false,
   showProfile = false,
   showNotification = false,
+  showNotificationBadge = false,
   showSearch = false,
   transparent = false,
+  largeTitle = false,
   children
 }) => {
   const navigate = useNavigate();
@@ -39,7 +43,7 @@ const Header: React.FC<HeaderProps> = ({
             <ArrowLeft size={20} />
           </button>
         )}
-        {title && <h1 className="text-lg font-semibold">{title}</h1>}
+        {title && <h1 className={`${largeTitle ? 'text-2xl font-bold' : 'text-lg font-semibold'}`}>{title}</h1>}
       </div>
 
       {children}
@@ -53,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
         {showNotification && (
           <button className="rounded-full p-1.5 hover:bg-gray-100 relative">
             <Bell size={20} />
-            <span className="absolute top-0 right-0 bg-app-red rounded-full w-2 h-2"></span>
+            {showNotificationBadge && <span className="absolute top-0 right-0 bg-red-500 rounded-full w-2 h-2"></span>}
           </button>
         )}
         {showProfile && (
