@@ -13,7 +13,13 @@ import {
   Send,
   Banknote,
   LineChart,
-  Menu
+  Menu,
+  TrendingUp,
+  PieChart,
+  Rocket,
+  RefreshCw,
+  Building2,
+  Scale
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -24,22 +30,22 @@ import Header from '@/components/Header';
 
 // Mock data for categories
 const categories = [
-  { id: 'eq-lc', name: 'Large Cap', icon: '📊', fundCount: 56 },
-  { id: 'eq-mc', name: 'Mid Cap', icon: '📈', fundCount: 42 },
-  { id: 'eq-sc', name: 'Small Cap', icon: '🚀', fundCount: 38 },
-  { id: 'eq-fc', name: 'Flexi Cap', icon: '🔄', fundCount: 62 },
-  { id: 'debt', name: 'Debt Funds', icon: '🏦', fundCount: 68 },
-  { id: 'hybrid', name: 'Hybrid Funds', icon: '⚖️', fundCount: 58 },
+  { id: 'eq-lc', name: 'Large Cap', icon: <BarChart3 size={24} className="text-blue-600" />, fundCount: 56 },
+  { id: 'eq-mc', name: 'Mid Cap', icon: <TrendingUp size={24} className="text-green-600" />, fundCount: 42 },
+  { id: 'eq-sc', name: 'Small Cap', icon: <Rocket size={24} className="text-red-500" />, fundCount: 38 },
+  { id: 'eq-fc', name: 'Flexi Cap', icon: <RefreshCw size={24} className="text-purple-600" />, fundCount: 62 },
+  { id: 'debt', name: 'Debt Funds', icon: <Building2 size={24} className="text-blue-400" />, fundCount: 68 },
+  { id: 'hybrid', name: 'Hybrid Funds', icon: <Scale size={24} className="text-teal-600" />, fundCount: 58 },
 ];
 
 // Mock data for mutual fund providers
 const providers = [
-  { id: 'sbi', name: 'SBI Mutual Fund', logo: '🏛️', fundCount: 48, aum: '₹7,52,956 Cr' },
-  { id: 'hdfc', name: 'HDFC Mutual Fund', logo: '🏢', fundCount: 42, aum: '₹5,48,725 Cr' },
-  { id: 'axis', name: 'Axis Mutual Fund', logo: '🔵', fundCount: 37, aum: '₹2,98,672 Cr' },
-  { id: 'icici', name: 'ICICI Prudential', logo: '🟡', fundCount: 56, aum: '₹5,24,123 Cr' },
-  { id: 'aditya', name: 'Aditya Birla Sun Life', logo: '🌞', fundCount: 52, aum: '₹3,15,481 Cr' },
-  { id: 'kotak', name: 'Kotak Mahindra', logo: '🔴', fundCount: 40, aum: '₹2,87,349 Cr' },
+  { id: 'sbi', name: 'SBI Mutual Fund', logo: <Building2 size={24} className="text-slate-600" />, fundCount: 48, aum: '₹7,52,956 Cr' },
+  { id: 'hdfc', name: 'HDFC Mutual Fund', logo: <Building2 size={24} className="text-blue-500" />, fundCount: 42, aum: '₹5,48,725 Cr' },
+  { id: 'axis', name: 'Axis Mutual Fund', logo: <PieChart size={24} className="text-blue-600" />, fundCount: 37, aum: '₹2,98,672 Cr' },
+  { id: 'icici', name: 'ICICI Prudential', logo: <PieChart size={24} className="text-yellow-500" />, fundCount: 56, aum: '₹5,24,123 Cr' },
+  { id: 'aditya', name: 'Aditya Birla Sun Life', logo: <PieChart size={24} className="text-orange-500" />, fundCount: 52, aum: '₹3,15,481 Cr' },
+  { id: 'kotak', name: 'Kotak Mahindra', logo: <PieChart size={24} className="text-red-500" />, fundCount: 40, aum: '₹2,87,349 Cr' },
 ];
 
 // Mock data for insights - Fixed the type property to use specific string literals
@@ -75,7 +81,7 @@ const MutualFundProviderPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   return (
-    <div className="app-container pb-16">
+    <div className="app-container pb-16 bg-gray-50">
       {/* Use the Header component instead of a custom header */}
       <Header 
         title="Investments" 
@@ -139,7 +145,7 @@ const MutualFundProviderPage: React.FC = () => {
               <h2 className="text-xl font-semibold">Top Categories</h2>
               <Button 
                 variant="link" 
-                className="text-blue-600 font-semibold p-0"
+                className="text-blue-600 font-semibold p-0 flex items-center"
                 onClick={() => navigate('/invest/categories')}
               >
                 View All
@@ -153,7 +159,9 @@ const MutualFundProviderPage: React.FC = () => {
                   className="bg-white border border-gray-100 rounded-xl p-4 flex flex-col items-center justify-center shadow-sm hover:shadow-md transition-shadow duration-200"
                   onClick={() => navigate(`/invest/category/${category.id}`)}
                 >
-                  <div className="text-3xl mb-2">{category.icon}</div>
+                  <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-50 mb-2">
+                    {category.icon}
+                  </div>
                   <div className="text-sm font-medium text-center">{category.name}</div>
                 </div>
               ))}
@@ -166,7 +174,7 @@ const MutualFundProviderPage: React.FC = () => {
               <h2 className="text-xl font-semibold">Fund Houses</h2>
               <Button 
                 variant="link" 
-                className="text-blue-600 font-semibold p-0"
+                className="text-blue-600 font-semibold p-0 flex items-center"
                 onClick={() => navigate('/invest/mutual-funds')}
               >
                 View All
@@ -180,7 +188,9 @@ const MutualFundProviderPage: React.FC = () => {
                   className="bg-white border border-gray-100 rounded-xl p-4 flex flex-col items-center justify-center min-w-[120px] shadow-sm hover:shadow-md transition-shadow duration-200"
                   onClick={() => navigate(`/invest/provider/${provider.id}`)}
                 >
-                  <div className="text-3xl mb-2">{provider.logo}</div>
+                  <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-50 mb-2">
+                    {provider.logo}
+                  </div>
                   <div className="text-xs font-medium text-center whitespace-nowrap">{provider.name}</div>
                 </div>
               ))}
@@ -193,7 +203,7 @@ const MutualFundProviderPage: React.FC = () => {
               <h2 className="text-xl font-semibold">Investment Insights</h2>
               <Button 
                 variant="link" 
-                className="text-blue-600 font-semibold p-0"
+                className="text-blue-600 font-semibold p-0 flex items-center"
                 onClick={() => navigate('/invest/insights')}
               >
                 <span>View All</span>
@@ -219,6 +229,73 @@ const MutualFundProviderPage: React.FC = () => {
                 Explore SIP Options
               </Button>
             </div>
+          </div>
+          
+          {/* Popular Collections */}
+          <div className="px-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Collections</h2>
+              <Button 
+                variant="link" 
+                className="text-blue-600 font-semibold p-0 flex items-center"
+                onClick={() => navigate('/invest/collections')}
+              >
+                View All
+              </Button>
+            </div>
+            
+            <div className="flex overflow-x-auto space-x-3 pb-2 hide-scrollbar">
+              <div className="min-w-[200px] bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-4 text-white">
+                <h3 className="font-semibold mb-1">High Return</h3>
+                <p className="text-xs mb-2 opacity-90">Funds with highest returns</p>
+                <Button 
+                  size="sm" 
+                  variant="secondary" 
+                  className="bg-white text-blue-700 hover:bg-blue-50"
+                  onClick={() => navigate('/invest/collections/high-return')}
+                >
+                  View Funds
+                </Button>
+              </div>
+              
+              <div className="min-w-[200px] bg-gradient-to-br from-green-500 to-green-700 rounded-xl p-4 text-white">
+                <h3 className="font-semibold mb-1">SIP with ₹500</h3>
+                <p className="text-xs mb-2 opacity-90">Start investing with ₹500</p>
+                <Button 
+                  size="sm" 
+                  variant="secondary"
+                  className="bg-white text-green-700 hover:bg-green-50"
+                  onClick={() => navigate('/invest/collections/low-sip')}
+                >
+                  View Funds
+                </Button>
+              </div>
+              
+              <div className="min-w-[200px] bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl p-4 text-white">
+                <h3 className="font-semibold mb-1">Tax Saving</h3>
+                <p className="text-xs mb-2 opacity-90">Save tax with ELSS funds</p>
+                <Button 
+                  size="sm" 
+                  variant="secondary"
+                  className="bg-white text-purple-700 hover:bg-purple-50"
+                  onClick={() => navigate('/invest/collections/tax-saving')}
+                >
+                  View Funds
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          {/* All Mutual Funds */}
+          <div className="px-4 mt-2 mb-8">
+            <Button 
+              variant="outline" 
+              className="w-full py-6 text-base font-medium flex justify-between items-center"
+              onClick={() => navigate('/invest/mutual-funds')}
+            >
+              <span>All Mutual Funds</span>
+              <ChevronRight size={20} />
+            </Button>
           </div>
         </TabsContent>
       </Tabs>
