@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import InvestmentInsights from '@/components/InvestmentInsights';
 import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
 
 // Mock data for categories
 const categories = [
@@ -41,11 +42,11 @@ const providers = [
   { id: 'kotak', name: 'Kotak Mahindra', logo: '🔴', fundCount: 40, aum: '₹2,87,349 Cr' },
 ];
 
-// Mock data for insights
+// Mock data for insights - Fixed the type property to use specific string literals
 const mockInsights = [
   {
     id: '1',
-    type: 'recommendation',
+    type: 'recommendation' as const, // Using a specific string literal type
     title: 'Increase your SIP for better returns',
     description: 'Based on your investment pattern, increasing your SIP amount by 10% can significantly improve your long-term returns.',
     actionLink: '/invest/sip-calculator',
@@ -53,7 +54,7 @@ const mockInsights = [
   },
   {
     id: '2',
-    type: 'alert',
+    type: 'alert' as const, // Using a specific string literal type
     title: 'SIP payment due in 3 days',
     description: 'Your monthly SIP payment for HDFC Mid-Cap Opportunities Fund is due on 15th May.',
     actionLink: '/invest/sip-management',
@@ -61,7 +62,7 @@ const mockInsights = [
   },
   {
     id: '3',
-    type: 'opportunity',
+    type: 'opportunity' as const, // Using a specific string literal type
     title: 'New fund recommendation',
     description: 'Based on your portfolio, Mirae Asset Emerging Bluechip Fund could be a good addition for diversification.',
     actionLink: '/invest/fund/mirae1',
@@ -75,17 +76,13 @@ const MutualFundProviderPage: React.FC = () => {
   
   return (
     <div className="app-container pb-16">
-      {/* Header */}
-      <div className="px-4 py-5 flex items-center justify-between bg-white sticky top-0 z-10">
-        <h1 className="text-2xl font-bold">Investments</h1>
-        <div className="flex space-x-4">
-          <div className="relative">
-            <Bell size={24} />
-            <span className="absolute top-0 right-0 bg-red-500 rounded-full w-2 h-2"></span>
-          </div>
-          <User size={24} onClick={() => navigate('/profile')} />
-        </div>
-      </div>
+      {/* Use the Header component instead of a custom header */}
+      <Header 
+        title="Investments" 
+        showNotification 
+        showNotificationBadge 
+        showProfile
+      />
       
       {/* Tabs */}
       <Tabs defaultValue="explore" className="w-full">
@@ -226,33 +223,8 @@ const MutualFundProviderPage: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Custom Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10 flex items-center justify-around p-2">
-        <div className="flex flex-col items-center py-2 px-3 text-gray-500">
-          <Home size={22} className="mb-1" />
-          <span className="text-xs">Home</span>
-        </div>
-        
-        <div className="flex flex-col items-center py-2 px-3 text-gray-500">
-          <Send size={22} className="mb-1" />
-          <span className="text-xs">Payments</span>
-        </div>
-        
-        <div className="flex flex-col items-center py-2 px-3 text-gray-500">
-          <Banknote size={22} className="mb-1" />
-          <span className="text-xs">Bills</span>
-        </div>
-        
-        <div className="flex flex-col items-center py-2 px-3 text-blue-600">
-          <LineChart size={22} className="mb-1" />
-          <span className="text-xs">Invest</span>
-        </div>
-        
-        <div className="flex flex-col items-center py-2 px-3 text-gray-500">
-          <Menu size={22} className="mb-1" />
-          <span className="text-xs">More</span>
-        </div>
-      </div>
+      {/* Use the BottomNav component */}
+      <BottomNav activeTab="invest" />
     </div>
   );
 };
