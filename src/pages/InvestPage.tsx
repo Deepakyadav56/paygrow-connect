@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -18,39 +17,9 @@ import {
   AlertCircle,
   X,
   PauseCircle,
-  PlayCircle
+  PlayCircle,
+  Target
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import Header from '@/components/Header';
-import BottomNav from '@/components/BottomNav';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import InvestmentGoalCard from '@/components/InvestmentGoalCard';
-import InvestmentInsights from '@/components/InvestmentInsights';
-import { toast } from 'sonner';
 
 // Mock data for investments
 const recommendedFunds = [
