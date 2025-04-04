@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Trash2 } from 'lucide-react';
+import { ArrowRight, Trash2, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import Header from '@/components/Header';
@@ -65,7 +65,7 @@ const CartPage: React.FC = () => {
   
   return (
     <div className="bg-gray-50 min-h-screen pb-20">
-      <Header title="Cart" showBackButton />
+      <Header title="Cart" showBack />
       
       <div className="p-4">
         {cartItems.length > 0 ? (

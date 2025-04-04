@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ShoppingCart, ChevronRight, Circle } from 'lucide-react';
+import { ShoppingCart, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface CartSectionProps {
@@ -12,7 +12,7 @@ const CartSection: React.FC<CartSectionProps> = ({ itemCount }) => {
   
   return (
     <div 
-      className="bg-white border border-gray-200 rounded-lg p-4 flex justify-between items-center mb-6 cursor-pointer"
+      className="bg-white border border-gray-200 rounded-lg p-4 flex justify-between items-center mb-6 cursor-pointer hover:bg-gray-50 transition-colors"
       onClick={() => navigate('/invest/cart')}
     >
       <div className="flex items-center">

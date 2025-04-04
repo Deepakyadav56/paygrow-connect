@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PlusCircle, Filter, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -60,6 +59,9 @@ const mockSips = [
   },
 ];
 
+// Define the status type
+type SIPStatus = 'active' | 'paused' | 'stopped';
+
 const SIPDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
@@ -87,7 +89,7 @@ const SIPDashboard: React.FC = () => {
   
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
-      <Header title="SIP Dashboard" showBackButton />
+      <Header title="SIP Dashboard" showBack />
       
       <div className="p-4">
         {/* Summary Card */}

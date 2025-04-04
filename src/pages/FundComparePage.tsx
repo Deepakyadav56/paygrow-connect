@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, Search, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -130,7 +129,7 @@ const FundComparePage: React.FC = () => {
   
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
-      <Header title="Compare Funds" showBackButton />
+      <Header title="Compare Funds" showBack />
       
       <div className="p-4">
         {/* Selected funds */}
