@@ -1,701 +1,359 @@
 
-import React, { useState } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Calendar, Repeat, CreditCard, Clock, ChevronsUpDown, Info, ChevronRight, HelpCircle, Percent, AlertCircle } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, Calendar, TrendingUp, Check, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { 
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-import { Slider } from "@/components/ui/slider";
+import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/use-toast';
+import Header from '@/components/Header';
+import BottomNav from '@/components/BottomNav';
 
-// Mock data for funds
-const fundsData: Record<string, any> = {
-  'inv1': {
-    id: 'inv1',
-    name: 'Axis Bluechip Fund',
-    category: 'Equity - Large Cap',
-    amc: 'Axis Mutual Fund',
-    nav: 52.32,
-    riskLevel: 'Moderate',
-    rating: 4,
-    minInvestment: 500,
-    sipMinAmount: 500,
-    oneTimeMinAmount: 1000,
-    exitLoad: '1% if redeemed within 1 year',
+interface Fund {
+  id: string;
+  name: string;
+  logo: string;
+  category: string;
+  nav: number;
+  minSipAmount: number;
+  minLumpSumAmount: number;
+  returns: {
+    oneYear: number;
+    threeYear: number;
+    fiveYear: number;
+  };
+}
+
+// Mock fund data - in a real app, this would come from an API
+const getFundDetails = (fundId: string): Fund => {
+  return {
+    id: fundId,
+    name: fundId === 'fund1' ? 'HDFC Mid-Cap Opportunities Fund' : 'Axis Bluechip Fund',
+    logo: fundId === 'fund1' 
+      ? 'https://www.hdfcfund.com/content/dam/abc-of-money/logo/hdfc-mutual-fund-logo.png'
+      : 'https://www.axismf.com/assets/images/axis-logo.svg',
+    category: fundId === 'fund1' ? 'Equity - Mid Cap' : 'Equity - Large Cap',
+    nav: fundId === 'fund1' ? 36.67 : 25.85,
+    minSipAmount: fundId === 'fund1' ? 500 : 1000,
+    minLumpSumAmount: fundId === 'fund1' ? 5000 : 5000,
     returns: {
-      oneYear: 12.5,
-      threeYear: 8.7,
-      fiveYear: 11.2
-    },
-    taxImplication: 'Long-term capital gains (>1 year): 10% above ₹1 lakh. Short-term (<1 year): 15%.',
-    currentHolding: {
-      units: 457.93,
-      value: 25000,
-      avgNav: 54.59
+      oneYear: fundId === 'fund1' ? 25.0 : 12.5,
+      threeYear: fundId === 'fund1' ? 22.1 : 15.3,
+      fiveYear: fundId === 'fund1' ? 18.5 : 13.7
     }
-  },
-  'fund1': {
-    id: 'fund1',
-    name: 'Axis Bluechip Fund',
-    category: 'Equity - Large Cap',
-    amc: 'Axis Mutual Fund',
-    nav: 52.32,
-    riskLevel: 'Moderate',
-    rating: 4,
-    minInvestment: 500,
-    sipMinAmount: 500,
-    oneTimeMinAmount: 1000,
-    exitLoad: '1% if redeemed within 1 year',
-    returns: {
-      oneYear: 12.5,
-      threeYear: 8.7,
-      fiveYear: 11.2
-    },
-    taxImplication: 'Long-term capital gains (>1 year): 10% above ₹1 lakh. Short-term (<1 year): 15%.',
-    currentHolding: {
-      units: 457.93,
-      value: 25000,
-      avgNav: 54.59
-    }
-  }
+  };
 };
 
 const InvestmentOptionsPage: React.FC = () => {
   const { fundId } = useParams<{ fundId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   
-  const fund = fundsData[fundId || 'inv1'] || fundsData['inv1'];
+  // Only show sell tab if explicitly passed in location state
+  const showSellTab = location.state?.showSell === true;
+  const defaultTab = location.state?.defaultTab || 'oneTime';
   
-  const [investmentType, setInvestmentType] = useState<'buy' | 'sell'>('buy');
-  const [investmentMode, setInvestmentMode] = useState<'sip' | 'oneTime'>('sip');
-  const [amount, setAmount] = useState<string>('');
-  const [sipDate, setSipDate] = useState<Date | undefined>(new Date());
-  const [sipFrequency, setSipFrequency] = useState<'monthly' | 'quarterly'>('monthly');
-  const [sipDuration, setSipDuration] = useState<'ongoing' | '3months' | '6months' | '1year' | '2years' | '3years' | '5years' | '10years'>('ongoing');
-  const [unitsToSell, setUnitsToSell] = useState<string>('');
-  const [sellType, setSellType] = useState<'amount' | 'units' | 'all'>('amount');
-  const [calendar, setCalendar] = useState<boolean>(false);
-  const [sipStepUpPercentage, setSipStepUpPercentage] = useState<number>(0);
-  const [showPastPerformance, setShowPastPerformance] = useState<boolean>(false);
-  const [showTaxInfo, setShowTaxInfo] = useState<boolean>(false);
+  // Get fund details
+  const fund = getFundDetails(fundId || 'fund1');
   
-  const quickAmounts = [1000, 5000, 10000, 25000];
+  // State for investment options
+  const [activeTab, setActiveTab] = useState<string>(defaultTab);
+  const [investmentAmount, setInvestmentAmount] = useState<string>(fund.minLumpSumAmount.toString());
+  const [sipAmount, setSipAmount] = useState<string>(fund.minSipAmount.toString());
+  const [sipFrequency, setSipFrequency] = useState<string>('monthly');
+  const [sipDate, setSipDate] = useState<string>('1');
   
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount);
+  const handleInvestmentAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInvestmentAmount(e.target.value);
   };
   
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Only allow numbers
-    if (/^\d*$/.test(value)) {
-      setAmount(value);
-    }
+  const handleSipAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSipAmount(e.target.value);
   };
   
-  const handleUnitsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Allow decimal numbers
-    if (/^\d*\.?\d*$/.test(value)) {
-      setUnitsToSell(value);
-    }
-  };
-  
-  const handleQuickAmount = (quickAmount: number) => {
-    setAmount(quickAmount.toString());
-  };
-  
-  const handleInvest = () => {
-    // Validation based on investment type and mode
-    if (investmentType === 'buy') {
-      const minAmount = investmentMode === 'sip' ? fund.sipMinAmount : fund.oneTimeMinAmount;
-      
-      if (!amount || parseInt(amount) < minAmount) {
-        toast.error(`Minimum ${investmentMode === 'sip' ? 'SIP' : 'one-time'} amount is ${formatCurrency(minAmount)}`);
-        return;
-      }
-      
-      if (investmentMode === 'sip' && !sipDate) {
-        toast.error('Please select a SIP date');
-        return;
-      }
-      
-      // Navigate to confirmation page with all investment details
-      navigate('/invest/confirm', {
-        state: {
-          fundId: fund.id,
-          fundName: fund.name,
-          investmentType,
-          investmentMode,
-          amount: parseInt(amount),
-          sipDate: sipDate ? format(sipDate, 'dd') : null,
-          sipFrequency,
-          sipDuration,
-          sipStepUpPercentage,
-          nav: fund.nav
-        }
+  const handleConfirmInvestment = () => {
+    if (activeTab === 'oneTime') {
+      // Handle one-time investment
+      toast({
+        title: "Investment Initiated",
+        description: `Your one-time investment of ₹${investmentAmount} in ${fund.name} has been initiated.`,
+        variant: "default",
       });
-    } else if (investmentType === 'sell') {
-      if (sellType === 'amount' && (!amount || parseInt(amount) < 100)) {
-        toast.error('Please enter a valid amount to redeem');
-        return;
-      } else if (sellType === 'units' && (!unitsToSell || parseFloat(unitsToSell) <= 0)) {
-        toast.error('Please enter valid units to redeem');
-        return;
-      }
-      
-      // Navigate to confirmation page with redemption details
-      navigate('/invest/confirm', {
-        state: {
-          fundId: fund.id,
+      navigate('/invest/confirm', { 
+        state: { 
+          fundId, 
+          amount: parseFloat(investmentAmount),
+          type: 'lumpSum',
           fundName: fund.name,
-          investmentType: 'sell',
-          sellType,
-          amount: sellType === 'amount' ? parseInt(amount) : null,
-          units: sellType === 'units' ? parseFloat(unitsToSell) : null,
-          sellAll: sellType === 'all',
-          currentValue: fund.currentHolding.value,
-          currentUnits: fund.currentHolding.units,
-          nav: fund.nav,
-          exitLoad: fund.exitLoad
-        }
+          fundLogo: fund.logo
+        } 
       });
+    } else if (activeTab === 'sip') {
+      // Handle SIP investment
+      toast({
+        title: "SIP Initiated",
+        description: `Your SIP of ₹${sipAmount} in ${fund.name} has been set up successfully.`,
+        variant: "default",
+      });
+      navigate('/invest/sip/start/' + fundId, { 
+        state: { 
+          amount: parseFloat(sipAmount),
+          frequency: sipFrequency,
+          date: sipDate,
+          fundName: fund.name,
+          fundLogo: fund.logo
+        } 
+      });
+    } else if (activeTab === 'sell' && showSellTab) {
+      // Handle redemption
+      navigate('/invest/fund/redeem/' + fundId);
     }
   };
-
+  
+  const availableDates = Array.from({ length: 28 }, (_, i) => (i + 1).toString());
+  
+  // Validate inputs
+  const isOneTimeValid = parseFloat(investmentAmount) >= fund.minLumpSumAmount;
+  const isSipValid = parseFloat(sipAmount) >= fund.minSipAmount;
+  
   return (
-    <div className="app-container pb-20">
-      <div className="sticky top-0 z-10 bg-white shadow-sm">
-        <div className="p-4 flex items-center">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="p-2 rounded-full hover:bg-gray-100"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h1 className="text-lg font-semibold ml-2">{fund.name}</h1>
+    <div className="bg-app-teal-50 min-h-screen pb-20">
+      <Header title="Investment Options" showBack />
+      
+      <div className="p-4">
+        {/* Fund Information */}
+        <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
+          <div className="flex items-center mb-3">
+            <div className="w-12 h-12 mr-3 rounded-lg bg-white p-1 border border-app-teal-100 flex-shrink-0">
+              <img src={fund.logo} alt={fund.name} className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <h3 className="font-medium text-app-teal-900">{fund.name}</h3>
+              <div className="flex items-center mt-1">
+                <span className="text-sm text-app-teal-700">{fund.category}</span>
+                <span className="mx-2 text-app-teal-300">•</span>
+                <span className="text-sm text-app-teal-700">NAV: ₹{fund.nav.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 pt-3 border-t border-app-teal-100">
+            <div>
+              <div className="text-sm text-app-teal-600">1Y Returns</div>
+              <div className="font-semibold text-app-green">{fund.returns.oneYear.toFixed(2)}%</div>
+            </div>
+            <div>
+              <div className="text-sm text-app-teal-600">3Y Returns</div>
+              <div className="font-semibold text-app-green">{fund.returns.threeYear.toFixed(2)}%</div>
+            </div>
+            <div>
+              <div className="text-sm text-app-teal-600">5Y Returns</div>
+              <div className="font-semibold text-app-green">{fund.returns.fiveYear.toFixed(2)}%</div>
+            </div>
+          </div>
         </div>
         
+        {/* Investment Options */}
         <Tabs 
-          defaultValue="buy" 
-          className="w-full"
-          onValueChange={(value) => setInvestmentType(value as 'buy' | 'sell')}
+          defaultValue={defaultTab} 
+          value={activeTab}
+          onValueChange={setActiveTab} 
+          className="bg-white rounded-lg shadow-sm p-4 mb-6"
         >
-          <TabsList className="grid grid-cols-2 mb-2">
-            <TabsTrigger value="buy">Buy</TabsTrigger>
-            <TabsTrigger value="sell">Sell</TabsTrigger>
+          <TabsList className="grid grid-cols-2 gap-2 bg-app-teal-50 p-1 rounded-lg">
+            <TabsTrigger 
+              value="oneTime"
+              className="rounded-md data-[state=active]:bg-app-teal-700 data-[state=active]:text-white"
+            >
+              One-Time
+            </TabsTrigger>
+            <TabsTrigger 
+              value="sip"
+              className="rounded-md data-[state=active]:bg-app-teal-700 data-[state=active]:text-white"
+            >
+              SIP
+            </TabsTrigger>
+            {showSellTab && (
+              <TabsTrigger 
+                value="sell"
+                className="rounded-md data-[state=active]:bg-app-teal-700 data-[state=active]:text-white"
+              >
+                Sell
+              </TabsTrigger>
+            )}
           </TabsList>
           
-          <div className="p-6 space-y-4">
-            <TabsContent value="buy" className="mt-0 space-y-6">
-              <div className="p-4 bg-white rounded-xl shadow-sm">
-                <div className="mb-4">
-                  <div className="font-medium mb-1">{fund.name}</div>
-                  <div className="text-xs text-gray-500">{fund.category}</div>
+          <TabsContent value="oneTime" className="pt-4">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="investment-amount" className="text-app-teal-700">
+                  Investment Amount
+                </Label>
+                <div className="mt-1 relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-app-teal-700">₹</span>
+                  <Input
+                    id="investment-amount"
+                    type="number"
+                    value={investmentAmount}
+                    onChange={handleInvestmentAmountChange}
+                    className="pl-7 bg-white border-app-teal-200 focus-visible:ring-app-teal-500"
+                    placeholder="Enter amount"
+                  />
                 </div>
-                
-                <div className="flex justify-between">
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">NAV</div>
-                    <div className="font-semibold">₹{fund.nav}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">1Y Returns</div>
-                    <div className="text-app-green font-semibold">+{fund.returns.oneYear}%</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">Min. Amount</div>
-                    <div className="font-semibold">₹{fund.minInvestment}</div>
-                  </div>
-                </div>
+                <p className="text-xs text-app-teal-600 mt-1">
+                  Minimum amount: ₹{fund.minLumpSumAmount.toLocaleString()}
+                </p>
               </div>
               
-              <div>
-                <RadioGroup 
-                  defaultValue="sip" 
-                  className="flex border border-gray-200 rounded-xl overflow-hidden mb-4"
-                  onValueChange={(value) => setInvestmentMode(value as 'sip' | 'oneTime')}
-                >
-                  <div className="flex-1 relative">
-                    <RadioGroupItem 
-                      value="sip" 
-                      id="sip" 
-                      className="sr-only" 
-                    />
-                    <Label
-                      htmlFor="sip"
-                      className={`flex-1 flex items-center justify-center py-3 px-4 cursor-pointer ${
-                        investmentMode === 'sip' ? 'bg-app-blue text-white' : 'bg-white text-gray-700'
-                      }`}
-                    >
-                      <Repeat size={16} className="mr-2" /> SIP
-                    </Label>
-                  </div>
-                  
-                  <div className="flex-1 relative">
-                    <RadioGroupItem 
-                      value="oneTime" 
-                      id="oneTime" 
-                      className="sr-only" 
-                    />
-                    <Label
-                      htmlFor="oneTime"
-                      className={`flex-1 flex items-center justify-center py-3 px-4 cursor-pointer ${
-                        investmentMode === 'oneTime' ? 'bg-app-blue text-white' : 'bg-white text-gray-700'
-                      }`}
-                    >
-                      <CreditCard size={16} className="mr-2" /> One-Time
-                    </Label>
-                  </div>
-                </RadioGroup>
-                
-                {investmentMode === 'sip' && (
-                  <div className="mb-6 space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        SIP Date
-                      </label>
-                      
-                      <Popover open={calendar} onOpenChange={setCalendar}>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="w-full justify-between text-left font-normal"
-                          >
-                            {sipDate ? (
-                              <span>SIP on {format(sipDate, "do")} of every month</span>
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <Calendar size={16} />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <CalendarComponent
-                            mode="single"
-                            selected={sipDate}
-                            onSelect={(date) => {
-                              setSipDate(date);
-                              setCalendar(false);
-                            }}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        SIP Frequency
-                      </label>
-                      <RadioGroup 
-                        defaultValue="monthly" 
-                        className="flex border border-gray-200 rounded-xl overflow-hidden"
-                        onValueChange={(value) => setSipFrequency(value as 'monthly' | 'quarterly')}
-                      >
-                        <div className="flex-1 relative">
-                          <RadioGroupItem 
-                            value="monthly" 
-                            id="monthly" 
-                            className="sr-only" 
-                          />
-                          <Label
-                            htmlFor="monthly"
-                            className={`flex-1 flex items-center justify-center py-3 cursor-pointer ${
-                              sipFrequency === 'monthly' ? 'bg-app-blue text-white' : 'bg-white text-gray-700'
-                            }`}
-                          >
-                            Monthly
-                          </Label>
-                        </div>
-                        
-                        <div className="flex-1 relative">
-                          <RadioGroupItem 
-                            value="quarterly" 
-                            id="quarterly" 
-                            className="sr-only" 
-                          />
-                          <Label
-                            htmlFor="quarterly"
-                            className={`flex-1 flex items-center justify-center py-3 cursor-pointer ${
-                              sipFrequency === 'quarterly' ? 'bg-app-blue text-white' : 'bg-white text-gray-700'
-                            }`}
-                          >
-                            Quarterly
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        SIP Duration
-                      </label>
-                      <div className="relative">
-                        <select
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg appearance-none pr-10"
-                          value={sipDuration}
-                          onChange={(e) => setSipDuration(e.target.value as any)}
-                        >
-                          <option value="ongoing">Ongoing (Until Cancelled)</option>
-                          <option value="3months">3 Months</option>
-                          <option value="6months">6 Months</option>
-                          <option value="1year">1 Year</option>
-                          <option value="2years">2 Years</option>
-                          <option value="3years">3 Years</option>
-                          <option value="5years">5 Years</option>
-                          <option value="10years">10 Years</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                          <ChevronsUpDown size={16} className="text-gray-400" />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <label className="block text-sm font-medium text-gray-700">
-                          SIP Step-up <span className="text-xs text-gray-500">(Annual Increase)</span>
-                        </label>
-                        <span className="text-sm font-medium text-app-blue">{sipStepUpPercentage}%</span>
-                      </div>
-                      <Slider
-                        defaultValue={[0]}
-                        max={25}
-                        step={5}
-                        onValueChange={(value) => setSipStepUpPercentage(value[0])}
-                        className="mb-1"
-                      />
-                      <div className="flex justify-between text-xs text-gray-500">
-                        <span>0%</span>
-                        <span>25%</span>
-                      </div>
-                      {sipStepUpPercentage > 0 && (
-                        <div className="mt-2 p-2 bg-blue-50 rounded-lg text-xs text-gray-700">
-                          Your SIP amount will increase by {sipStepUpPercentage}% every year.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {investmentMode === 'sip' ? 'Monthly SIP Amount' : 'Investment Amount'}
-                  </label>
-                  
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <span className="text-gray-500">₹</span>
-                    </div>
-                    <Input
-                      type="text"
-                      placeholder="Enter amount"
-                      value={amount}
-                      onChange={handleAmountChange}
-                      className="pl-8 text-lg font-semibold"
-                    />
-                  </div>
-                  
-                  <p className="text-xs text-gray-500 mt-1">
-                    Minimum {investmentMode === 'sip' ? 'SIP' : 'one-time'} amount: ₹{investmentMode === 'sip' ? fund.sipMinAmount : fund.oneTimeMinAmount}
+              <div className="pt-3 mt-2 flex items-center">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-app-teal-100 mr-3">
+                  <TrendingUp size={16} className="text-app-teal-700" />
+                </div>
+                <div>
+                  <p className="text-sm text-app-teal-700">
+                    Expected returns on ₹{parseFloat(investmentAmount).toLocaleString() || '0'} in 5 years
+                  </p>
+                  <p className="font-semibold text-app-teal-900">
+                    ₹{(parseFloat(investmentAmount || '0') * (1 + fund.returns.fiveYear / 100) ** 5).toLocaleString(undefined, {maximumFractionDigits: 0})}
                   </p>
                 </div>
-                
-                <div className="flex justify-between mb-6">
-                  {quickAmounts.map((amt) => (
-                    <button
-                      key={amt}
-                      className={`px-3 py-1.5 rounded-lg text-sm ${
-                        amount === amt.toString() 
-                          ? 'bg-app-blue text-white' 
-                          : 'border border-gray-300 text-gray-700'
-                      }`}
-                      onClick={() => handleQuickAmount(amt)}
-                    >
-                      ₹{amt.toLocaleString()}
-                    </button>
-                  ))}
-                </div>
-                
-                <Accordion type="multiple" className="mb-6">
-                  <AccordionItem value="details">
-                    <AccordionTrigger className="text-app-blue">
-                      <div className="flex items-center">
-                        <Info size={16} className="mr-2" />
-                        View Fund Details
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-3 py-2">
-                        <div className="flex justify-between">
-                          <div className="text-gray-600">Fund House</div>
-                          <div className="font-medium">{fund.amc}</div>
-                        </div>
-                        <div className="flex justify-between">
-                          <div className="text-gray-600">Risk Level</div>
-                          <div className="font-medium">{fund.riskLevel}</div>
-                        </div>
-                        <div className="flex justify-between">
-                          <div className="text-gray-600">Min. SIP Amount</div>
-                          <div className="font-medium">₹{fund.sipMinAmount}</div>
-                        </div>
-                        <div className="flex justify-between">
-                          <div className="text-gray-600">Min. One-Time</div>
-                          <div className="font-medium">₹{fund.oneTimeMinAmount}</div>
-                        </div>
-                        <div className="flex justify-between">
-                          <div className="text-gray-600">Exit Load</div>
-                          <div className="font-medium">{fund.exitLoad}</div>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="performance">
-                    <AccordionTrigger className="text-app-blue">
-                      <div className="flex items-center">
-                        <TrendingUp size={16} className="mr-2" />
-                        Past Performance
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-3 py-2">
-                        <div className="flex justify-between">
-                          <div className="text-gray-600">1 Year Returns</div>
-                          <div className={`font-medium ${fund.returns.oneYear >= 0 ? 'text-app-green' : 'text-app-red'}`}>
-                            {fund.returns.oneYear >= 0 ? '+' : ''}{fund.returns.oneYear}%
-                          </div>
-                        </div>
-                        <div className="flex justify-between">
-                          <div className="text-gray-600">3 Years Returns</div>
-                          <div className={`font-medium ${fund.returns.threeYear >= 0 ? 'text-app-green' : 'text-app-red'}`}>
-                            {fund.returns.threeYear >= 0 ? '+' : ''}{fund.returns.threeYear}%
-                          </div>
-                        </div>
-                        <div className="flex justify-between">
-                          <div className="text-gray-600">5 Years Returns</div>
-                          <div className={`font-medium ${fund.returns.fiveYear >= 0 ? 'text-app-green' : 'text-app-red'}`}>
-                            {fund.returns.fiveYear >= 0 ? '+' : ''}{fund.returns.fiveYear}%
-                          </div>
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1 bg-gray-50 p-2 rounded">
-                          Past performance is not indicative of future returns. Please read all scheme related documents carefully.
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="tax">
-                    <AccordionTrigger className="text-app-blue">
-                      <div className="flex items-center">
-                        <Percent size={16} className="mr-2" />
-                        Tax Implications
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-3 py-2">
-                        <p className="text-sm text-gray-700">
-                          {fund.taxImplication}
-                        </p>
-                        <div className="text-xs text-gray-500 mt-1 bg-gray-50 p-2 rounded">
-                          Tax implications may change based on government regulations. Please consult a tax advisor.
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="sell" className="mt-0 space-y-6">
-              <div className="p-4 bg-white rounded-xl shadow-sm">
-                <div className="mb-4">
-                  <div className="font-medium mb-1">{fund.name}</div>
-                  <div className="text-xs text-gray-500">{fund.category}</div>
+              
+              {!isOneTimeValid && (
+                <div className="bg-app-teal-50 p-3 rounded-lg flex items-start mt-3">
+                  <AlertCircle size={18} className="text-app-orange mt-0.5 mr-2 flex-shrink-0" />
+                  <p className="text-sm text-app-teal-800">
+                    Please enter an amount greater than or equal to the minimum investment amount of ₹{fund.minLumpSumAmount.toLocaleString()}.
+                  </p>
                 </div>
-                
-                <div className="flex justify-between">
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">Current Value</div>
-                    <div className="font-semibold">₹{fund.currentHolding.value.toLocaleString()}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">Units Held</div>
-                    <div className="font-semibold">{fund.currentHolding.units}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">Avg. NAV</div>
-                    <div className="font-semibold">₹{fund.currentHolding.avgNav}</div>
-                  </div>
+              )}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="sip" className="pt-4">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="sip-amount" className="text-app-teal-700">
+                  SIP Amount
+                </Label>
+                <div className="mt-1 relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-app-teal-700">₹</span>
+                  <Input
+                    id="sip-amount"
+                    type="number"
+                    value={sipAmount}
+                    onChange={handleSipAmountChange}
+                    className="pl-7 bg-white border-app-teal-200 focus-visible:ring-app-teal-500"
+                    placeholder="Enter SIP amount"
+                  />
                 </div>
+                <p className="text-xs text-app-teal-600 mt-1">
+                  Minimum SIP: ₹{fund.minSipAmount.toLocaleString()}
+                </p>
               </div>
               
               <div>
+                <Label htmlFor="sip-frequency" className="text-app-teal-700">
+                  SIP Frequency
+                </Label>
+                <RadioGroup 
+                  value={sipFrequency} 
+                  onValueChange={setSipFrequency}
+                  className="flex space-x-4 mt-1"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="monthly" id="monthly" />
+                    <Label htmlFor="monthly">Monthly</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="quarterly" id="quarterly" />
+                    <Label htmlFor="quarterly">Quarterly</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              <div>
+                <Label htmlFor="sip-date" className="text-app-teal-700">
+                  SIP Date
+                </Label>
+                <select
+                  id="sip-date"
+                  value={sipDate}
+                  onChange={(e) => setSipDate(e.target.value)}
+                  className="w-full mt-1 rounded-md border border-app-teal-200 bg-white p-2 focus:outline-none focus:ring-2 focus:ring-app-teal-500"
+                >
+                  {availableDates.map((date) => (
+                    <option key={date} value={date}>
+                      {date}{date === '1' ? 'st' : date === '2' ? 'nd' : date === '3' ? 'rd' : 'th'} of every month
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="pt-3 mt-2 flex items-center">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-app-teal-100 mr-3">
+                  <TrendingUp size={16} className="text-app-teal-700" />
+                </div>
+                <div>
+                  <p className="text-sm text-app-teal-700">
+                    Expected value after 5 years of ₹{parseFloat(sipAmount).toLocaleString() || '0'}/month
+                  </p>
+                  <p className="font-semibold text-app-teal-900">
+                    ₹{(parseFloat(sipAmount || '0') * 60 * 1.12).toLocaleString(undefined, {maximumFractionDigits: 0})}
+                  </p>
+                </div>
+              </div>
+              
+              {!isSipValid && (
+                <div className="bg-app-teal-50 p-3 rounded-lg flex items-start mt-3">
+                  <AlertCircle size={18} className="text-app-orange mt-0.5 mr-2 flex-shrink-0" />
+                  <p className="text-sm text-app-teal-800">
+                    Please enter an amount greater than or equal to the minimum SIP amount of ₹{fund.minSipAmount.toLocaleString()}.
+                  </p>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+          
+          {showSellTab && (
+            <TabsContent value="sell" className="pt-4">
+              <div className="text-center py-6">
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Redemption Type
-                  </label>
-                  <RadioGroup 
-                    defaultValue="amount" 
-                    className="space-y-3"
-                    onValueChange={(value) => setSellType(value as 'amount' | 'units' | 'all')}
-                  >
-                    <div className="flex items-center">
-                      <RadioGroupItem value="amount" id="amount" />
-                      <Label htmlFor="amount" className="ml-2">By Amount</Label>
-                    </div>
-                    <div className="flex items-center">
-                      <RadioGroupItem value="units" id="units" />
-                      <Label htmlFor="units" className="ml-2">By Units</Label>
-                    </div>
-                    <div className="flex items-center">
-                      <RadioGroupItem value="all" id="all" />
-                      <Label htmlFor="all" className="ml-2">Redeem All Units</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-                
-                {sellType === 'amount' && (
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Redemption Amount
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <span className="text-gray-500">₹</span>
-                      </div>
-                      <Input
-                        type="text"
-                        placeholder="Enter amount"
-                        value={amount}
-                        onChange={handleAmountChange}
-                        className="pl-8 text-lg font-semibold"
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Maximum redemption amount: ₹{fund.currentHolding.value.toLocaleString()}
-                    </p>
-                    {amount && parseInt(amount) > 0 && (
-                      <div className="mt-2 p-2 bg-gray-50 rounded-lg">
-                        <div className="text-sm">
-                          Approximate units to be redeemed: <span className="font-medium">{((parseInt(amount) || 0) / fund.nav).toFixed(3)}</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-                
-                {sellType === 'units' && (
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Number of Units
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="Enter units"
-                      value={unitsToSell}
-                      onChange={handleUnitsChange}
-                      className="text-lg font-semibold"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Maximum units available: {fund.currentHolding.units}
-                    </p>
-                    {unitsToSell && parseFloat(unitsToSell) > 0 && (
-                      <div className="mt-2 p-2 bg-gray-50 rounded-lg">
-                        <div className="text-sm">
-                          Approximate redemption value: <span className="font-medium">₹{((parseFloat(unitsToSell) || 0) * fund.nav).toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-                
-                {sellType === 'all' && (
-                  <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                    <div className="font-medium mb-2">You are about to redeem all units</div>
-                    <div className="text-sm text-gray-600 mb-2">
-                      Total redemption value: ₹{fund.currentHolding.value.toLocaleString()} ({fund.currentHolding.units} units)
-                    </div>
-                    <div className="flex items-start">
-                      <AlertCircle size={16} className="text-amber-500 mr-2 mt-0.5" />
-                      <div className="text-xs text-amber-700">
-                        Once you redeem all units, you will no longer be invested in this fund.
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
-                  <div className="flex">
-                    <HelpCircle size={18} className="text-yellow-600 mr-2 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        <span className="font-medium">Exit Load:</span> {fund.exitLoad}
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">
-                        Redemption amount will be credited to your bank account within 3-5 working days.
-                      </p>
-                    </div>
+                  <div className="mx-auto w-12 h-12 rounded-full bg-app-teal-100 flex items-center justify-center">
+                    <ArrowLeft size={24} className="text-app-teal-600" />
                   </div>
                 </div>
-                
-                <Accordion type="single" collapsible className="mb-4">
-                  <AccordionItem value="tax">
-                    <AccordionTrigger className="text-app-blue">
-                      <div className="flex items-center">
-                        <Percent size={16} className="mr-2" />
-                        Tax Implications
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-3 py-2">
-                        <p className="text-sm text-gray-700">
-                          {fund.taxImplication}
-                        </p>
-                        <div className="text-xs text-gray-500 mt-1 bg-gray-50 p-2 rounded">
-                          Tax implications may change based on government regulations. Please consult a tax advisor.
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                <h3 className="text-lg font-medium text-app-teal-900">Redeem Your Investment</h3>
+                <p className="text-app-teal-700 mt-2">
+                  You can redeem part or all of your investments in this fund.
+                </p>
+                <Button 
+                  onClick={() => navigate(`/invest/fund/redeem/${fundId}`)}
+                  className="mt-4 bg-app-teal-700 hover:bg-app-teal-800 text-white"
+                >
+                  Proceed to Redemption
+                </Button>
               </div>
             </TabsContent>
-            
-            <Button 
-              onClick={handleInvest} 
-              className="w-full py-6 bg-app-blue hover:bg-app-dark-blue"
-            >
-              {investmentType === 'buy' 
-                ? (investmentMode === 'sip' ? 'Start SIP' : 'Invest Now') 
-                : 'Redeem Now'}
-            </Button>
-          </div>
+          )}
         </Tabs>
+        
+        {/* Action Button */}
+        {activeTab !== 'sell' && (
+          <Button 
+            onClick={handleConfirmInvestment} 
+            disabled={(activeTab === 'oneTime' && !isOneTimeValid) || (activeTab === 'sip' && !isSipValid)}
+            className="w-full bg-app-teal-700 hover:bg-app-teal-800 text-white font-medium"
+          >
+            {activeTab === 'oneTime' ? 'Invest Now' : 'Start SIP'}
+          </Button>
+        )}
       </div>
+      
+      <BottomNav activeTab="invest" />
     </div>
   );
 };

@@ -1,414 +1,296 @@
 
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, Check, X, Info, HelpCircle } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Info, ChevronRight, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Header from '@/components/Header';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useToast } from '@/components/ui/use-toast';
+import Header from '@/components/Header';
+import BottomNav from '@/components/BottomNav';
+
+interface Fund {
+  id: string;
+  name: string;
+  logo: string;
+  nav: number;
+  currentValue: number;
+  units: number;
+  purchaseNav: number;
+  gains: number;
+  gainsPercentage: number;
+}
+
+// Mock fund data - in a real app, this would come from an API
+const getFundDetails = (fundId: string): Fund => {
+  return {
+    id: fundId,
+    name: fundId === 'fund1' ? 'HDFC Mid-Cap Opportunities Fund' : 'Axis Bluechip Fund',
+    logo: fundId === 'fund1' 
+      ? 'https://www.hdfcfund.com/content/dam/abc-of-money/logo/hdfc-mutual-fund-logo.png'
+      : 'https://www.axismf.com/assets/images/axis-logo.svg',
+    nav: fundId === 'fund1' ? 36.67 : 25.85,
+    currentValue: fundId === 'fund1' ? 36670 : 25850,
+    units: fundId === 'fund1' ? 1000 : 1000,
+    purchaseNav: fundId === 'fund1' ? 30.50 : 22.48,
+    gains: fundId === 'fund1' ? 6170 : 3370,
+    gainsPercentage: fundId === 'fund1' ? 20.23 : 15.00
+  };
+};
 
 const RedeemFundPage: React.FC = () => {
+  const { fundId } = useParams<{ fundId: string }>();
   const navigate = useNavigate();
-  const { fundId } = useParams();
-  const [redeemType, setRedeemType] = useState('amount');
-  const [amount, setAmount] = useState('');
-  const [units, setUnits] = useState('');
-  const [redeemOption, setRedeemOption] = useState('full');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isRedeemed, setIsRedeemed] = useState(false);
-  const [bankAccount, setBankAccount] = useState('hdfc');
-
-  // Mock fund data
-  const fundData = {
-    id: fundId || 'fund1',
-    name: 'HDFC Mid-Cap Opportunities Fund',
-    category: 'Equity - Mid Cap',
-    investedAmount: 25000,
-    currentValue: 31250,
-    returns: 6250,
-    returnsPercentage: 25.0,
-    units: 852.14,
-    nav: 36.67,
-    exitLoad: '1% if redeemed within 1 year',
-    taxImplications: 'STCG: 15%, LTCG: 10% above ₹1 lakh',
-    investmentDate: '10 Jul 2022',
-    investmentPeriod: '1 year, 2 months',
+  const { toast } = useToast();
+  
+  const fund = getFundDetails(fundId || 'fund1');
+  
+  const [redeemMode, setRedeemMode] = useState<'amount' | 'units'>('amount');
+  const [redeemAmount, setRedeemAmount] = useState<number>(Math.round(fund.currentValue / 2));
+  const [redeemUnits, setRedeemUnits] = useState<number>(Math.round(fund.units / 2));
+  const [redeemPercentage, setRedeemPercentage] = useState<number>(50);
+  const [allUnits, setAllUnits] = useState<boolean>(false);
+  
+  // Calculate equivalent units or amount when the other changes
+  const calculateUnits = (amount: number) => {
+    return amount / fund.nav;
   };
-
-  const bankAccounts = [
-    { id: 'hdfc', name: 'HDFC Bank - XXXX6789' },
-    { id: 'icici', name: 'ICICI Bank - XXXX5432' },
-    { id: 'sbi', name: 'SBI - XXXX9876' },
-  ];
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setAmount(value);
+  
+  const calculateAmount = (units: number) => {
+    return units * fund.nav;
+  };
+  
+  const handleAmountChange = (value: string) => {
+    const amount = parseFloat(value) || 0;
+    const maxAmount = fund.currentValue;
     
-    // Calculate units based on amount
-    if (value && !isNaN(Number(value))) {
-      const calculatedUnits = (Number(value) / fundData.nav).toFixed(2);
-      setUnits(calculatedUnits);
-    } else {
-      setUnits('');
-    }
+    const validAmount = Math.min(amount, maxAmount);
+    setRedeemAmount(validAmount);
+    setRedeemUnits(calculateUnits(validAmount));
+    setRedeemPercentage((validAmount / maxAmount) * 100);
+    setAllUnits(validAmount >= maxAmount);
   };
-
-  const handleUnitsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setUnits(value);
+  
+  const handleUnitsChange = (value: string) => {
+    const units = parseFloat(value) || 0;
+    const maxUnits = fund.units;
     
-    // Calculate amount based on units
-    if (value && !isNaN(Number(value))) {
-      const calculatedAmount = (Number(value) * fundData.nav).toFixed(2);
-      setAmount(calculatedAmount);
-    } else {
-      setAmount('');
-    }
+    const validUnits = Math.min(units, maxUnits);
+    setRedeemUnits(validUnits);
+    setRedeemAmount(calculateAmount(validUnits));
+    setRedeemPercentage((validUnits / maxUnits) * 100);
+    setAllUnits(validUnits >= maxUnits);
   };
-
-  const handleRedeem = () => {
-    // Validation
-    if (redeemOption === 'partial' && redeemType === 'amount' && (!amount || Number(amount) <= 0 || Number(amount) > fundData.currentValue)) {
-      toast.error(Number(amount) > fundData.currentValue ? 
-        `Amount exceeds current investment value of ₹${fundData.currentValue}` : 
-        'Please enter a valid amount');
-      return;
-    }
-
-    if (redeemOption === 'partial' && redeemType === 'units' && (!units || Number(units) <= 0 || Number(units) > fundData.units)) {
-      toast.error(Number(units) > fundData.units ? 
-        `Units exceed available units of ${fundData.units.toFixed(2)}` : 
-        'Please enter valid units');
-      return;
-    }
-
-    setIsProcessing(true);
+  
+  const handleSliderChange = (value: number[]) => {
+    const percentage = value[0];
+    setRedeemPercentage(percentage);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsProcessing(false);
-      setIsRedeemed(true);
-      toast.success('Redemption request submitted successfully');
-    }, 1500);
-  };
-
-  const getRedeemAmount = () => {
-    if (redeemOption === 'full') {
-      return fundData.currentValue;
+    if (redeemMode === 'amount') {
+      const amount = (fund.currentValue * percentage) / 100;
+      setRedeemAmount(amount);
+      setRedeemUnits(calculateUnits(amount));
     } else {
-      return Number(amount) || 0;
+      const units = (fund.units * percentage) / 100;
+      setRedeemUnits(units);
+      setRedeemAmount(calculateAmount(units));
+    }
+    
+    setAllUnits(percentage >= 99.9);
+  };
+  
+  const handleAllUnitsToggle = (checked: boolean) => {
+    setAllUnits(checked);
+    
+    if (checked) {
+      setRedeemAmount(fund.currentValue);
+      setRedeemUnits(fund.units);
+      setRedeemPercentage(100);
+    } else {
+      setRedeemPercentage(50);
+      setRedeemAmount(fund.currentValue / 2);
+      setRedeemUnits(fund.units / 2);
     }
   };
-
-  const getRedeemUnits = () => {
-    if (redeemOption === 'full') {
-      return fundData.units;
-    } else {
-      return Number(units) || 0;
-    }
+  
+  const handleConfirmRedeem = () => {
+    toast({
+      title: "Redemption Initiated",
+      description: `Your redemption request for ₹${redeemAmount.toFixed(2)} (${redeemUnits.toFixed(2)} units) has been submitted.`,
+      variant: "default",
+    });
+    
+    // Navigate back to portfolio or details page
+    navigate(-1);
   };
-
-  // Redemption successful view
-  if (isRedeemed) {
-    return (
-      <div className="app-container">
-        <Header title="Redemption" showBack />
-        
-        <div className="p-4 flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-            <Check size={32} className="text-green-600" />
-          </div>
-          
-          <h2 className="text-xl font-semibold mb-2">Redemption Successful</h2>
-          <p className="text-gray-600 mb-6">
-            Your redemption request for {fundData.name} has been processed successfully.
-          </p>
-          
-          <Card className="w-full mb-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Redemption Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Fund Name</span>
-                  <span className="font-medium text-right flex-1 ml-4">{fundData.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Redeemed Amount</span>
-                  <span className="font-medium">₹{getRedeemAmount().toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Redeemed Units</span>
-                  <span className="font-medium">{getRedeemUnits().toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">NAV</span>
-                  <span className="font-medium">₹{fundData.nav}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Credit Account</span>
-                  <span className="font-medium">
-                    {bankAccounts.find(a => a.id === bankAccount)?.name}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Expected Credit Date</span>
-                  <span className="font-medium">
-                    {new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
-                      day: 'numeric', month: 'short', year: 'numeric'
-                    })}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <div className="w-full space-y-3">
-            <Button 
-              className="w-full" 
-              variant="outline"
-              onClick={() => navigate('/invest')}
-            >
-              Go to Investments
-            </Button>
-            <Button 
-              className="w-full"
-              onClick={() => navigate('/portfolio')}
-            >
-              View Portfolio
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  
+  const estimatedTax = redeemAmount * 0.10; // Approximate for display purposes
+  const estimatedPayout = redeemAmount - estimatedTax;
+  
   return (
-    <div className="app-container">
+    <div className="bg-app-teal-50 min-h-screen pb-20">
       <Header title="Redeem Fund" showBack />
       
       <div className="p-4">
-        <Card className="mb-4">
-          <CardHeader className="pb-2 pt-4">
-            <CardTitle className="text-lg">{fundData.name}</CardTitle>
-            <CardDescription>{fundData.category}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4 mb-3">
-              <div>
-                <p className="text-xs text-gray-500">Investment Value</p>
-                <p className="font-medium">₹{fundData.currentValue.toLocaleString('en-IN')}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Units</p>
-                <p className="font-medium">{fundData.units.toFixed(2)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">NAV</p>
-                <p className="font-medium">₹{fundData.nav}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Returns</p>
-                <p className="font-medium text-app-green">
-                  {fundData.returnsPercentage.toFixed(2)}% <span className="text-xs">(₹{fundData.returns.toLocaleString('en-IN')})</span>
-                </p>
+        {/* Fund Information */}
+        <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
+          <div className="flex items-center mb-3">
+            <div className="w-12 h-12 mr-3 rounded-lg bg-white p-1 border border-app-teal-100 flex-shrink-0">
+              <img src={fund.logo} alt={fund.name} className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <h3 className="font-medium text-app-teal-900">{fund.name}</h3>
+              <div className="flex items-center mt-1">
+                <span className="text-sm text-app-teal-700">NAV: ₹{fund.nav.toFixed(2)}</span>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="mb-4">
-          <CardHeader className="pb-2 pt-4">
-            <CardTitle className="text-lg">Redemption Options</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Redemption Type</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    type="button" 
-                    variant={redeemOption === 'full' ? 'default' : 'outline'} 
-                    className="w-full"
-                    onClick={() => setRedeemOption('full')}
-                  >
-                    Full Redemption
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant={redeemOption === 'partial' ? 'default' : 'outline'} 
-                    className="w-full"
-                    onClick={() => setRedeemOption('partial')}
-                  >
-                    Partial Redemption
-                  </Button>
-                </div>
-              </div>
-              
-              {redeemOption === 'partial' && (
-                <div>
-                  <Tabs defaultValue="amount" className="w-full" onValueChange={setRedeemType}>
-                    <TabsList className="grid grid-cols-2 mb-2">
-                      <TabsTrigger value="amount">By Amount</TabsTrigger>
-                      <TabsTrigger value="units">By Units</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="amount" className="mt-0">
-                      <div className="space-y-2">
-                        <label className="block text-sm font-medium">
-                          Amount to Redeem
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <HelpCircle size={14} className="ml-1 inline text-gray-400" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="w-60 text-xs">
-                                  Enter the amount you wish to redeem. The equivalent units will be calculated automatically.
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
-                          <Input
-                            type="number"
-                            value={amount}
-                            onChange={handleAmountChange}
-                            className="pl-7"
-                            placeholder="Enter amount"
-                          />
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          Approx. Units: {units ? `${units} units` : '-'}
-                        </div>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="units" className="mt-0">
-                      <div className="space-y-2">
-                        <label className="block text-sm font-medium">
-                          Units to Redeem
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <HelpCircle size={14} className="ml-1 inline text-gray-400" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="w-60 text-xs">
-                                  Enter the units you wish to redeem. The equivalent amount will be calculated automatically.
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </label>
-                        <Input
-                          type="number"
-                          value={units}
-                          onChange={handleUnitsChange}
-                          placeholder="Enter units"
-                        />
-                        <div className="text-sm text-gray-600">
-                          Approx. Amount: {amount ? `₹${parseFloat(amount).toLocaleString('en-IN')}` : '-'}
-                        </div>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              )}
-              
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Credit Account
-                </label>
-                <Select value={bankAccount} onValueChange={setBankAccount}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select bank account" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {bankAccounts.map(account => (
-                      <SelectItem key={account.id} value={account.id}>
-                        {account.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 pt-3 border-t border-app-teal-100">
+            <div>
+              <div className="text-sm text-app-teal-600">Current Value</div>
+              <div className="font-semibold text-app-teal-900">₹{fund.currentValue.toLocaleString()}</div>
+            </div>
+            <div>
+              <div className="text-sm text-app-teal-600">Total Units</div>
+              <div className="font-semibold text-app-teal-900">{fund.units.toFixed(3)}</div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 pt-3 mt-2 border-t border-app-teal-100">
+            <div>
+              <div className="text-sm text-app-teal-600">Returns</div>
+              <div className="font-semibold text-app-green">
+                +₹{fund.gains.toLocaleString()} (+{fund.gainsPercentage.toFixed(2)}%)
               </div>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="mb-4 border-amber-200">
-          <CardContent className="p-4">
-            <div className="flex items-start">
-              <Info size={20} className="text-amber-600 mr-2 flex-shrink-0 mt-0.5" />
-              <div>
-                <h4 className="font-medium text-sm">Important Information</h4>
-                <div className="mt-2 space-y-3 text-xs text-gray-600">
-                  <p>
-                    <span className="font-medium">Exit Load:</span> {fundData.exitLoad}
-                  </p>
-                  <p>
-                    <span className="font-medium">Tax Implications:</span> {fundData.taxImplications}
-                  </p>
-                  <p>
-                    <span className="font-medium">Processing Time:</span> T+3 business days for redemption amount credit
-                  </p>
-                </div>
-              </div>
+            <div>
+              <div className="text-sm text-app-teal-600">Purchase NAV</div>
+              <div className="font-semibold text-app-teal-900">₹{fund.purchaseNav.toFixed(2)}</div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
         
-        <Card className="mb-6 border-yellow-200">
-          <CardContent className="p-3">
-            <div className="flex items-start">
-              <AlertTriangle size={18} className="text-yellow-600 mr-2 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-gray-600">
-                Redemption requests placed before 3:00 PM will be processed at the same day's NAV, while requests after 3:00 PM will be processed at the next business day's NAV.
+        {/* Redemption Options */}
+        <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
+          <h3 className="font-medium text-app-teal-900 mb-4">Redeem Options</h3>
+          
+          <RadioGroup 
+            value={redeemMode} 
+            onValueChange={(value) => setRedeemMode(value as 'amount' | 'units')}
+            className="mb-4 flex space-x-6"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="amount" id="option-amount" />
+              <Label htmlFor="option-amount">By Amount</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="units" id="option-units" />
+              <Label htmlFor="option-units">By Units</Label>
+            </div>
+          </RadioGroup>
+          
+          {redeemMode === 'amount' ? (
+            <div className="mb-4">
+              <Label htmlFor="amount" className="text-app-teal-700">Amount to Redeem</Label>
+              <div className="mt-1 relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-app-teal-700">₹</span>
+                <Input
+                  id="amount"
+                  type="number"
+                  value={redeemAmount}
+                  onChange={(e) => handleAmountChange(e.target.value)}
+                  className="pl-7 bg-white border-app-teal-200 focus-visible:ring-app-teal-500"
+                  placeholder="Enter amount"
+                />
+              </div>
+              <p className="text-xs text-app-teal-600 mt-1">
+                Equivalent to {redeemUnits.toFixed(3)} units
               </p>
             </div>
-          </CardContent>
-        </Card>
-        
-        <div className="space-y-3">
-          <Button 
-            className="w-full" 
-            onClick={handleRedeem}
-            disabled={isProcessing}
-          >
-            {isProcessing ? 'Processing...' : 'Confirm Redemption'}
-          </Button>
-          <Button 
-            className="w-full" 
-            variant="outline"
-            onClick={() => navigate(-1)}
-            disabled={isProcessing}
-          >
-            Cancel
-          </Button>
+          ) : (
+            <div className="mb-4">
+              <Label htmlFor="units" className="text-app-teal-700">Units to Redeem</Label>
+              <Input
+                id="units"
+                type="number"
+                value={redeemUnits}
+                onChange={(e) => handleUnitsChange(e.target.value)}
+                className="bg-white border-app-teal-200 focus-visible:ring-app-teal-500"
+                placeholder="Enter units"
+                step="0.001"
+              />
+              <p className="text-xs text-app-teal-600 mt-1">
+                Equivalent to ₹{redeemAmount.toFixed(2)}
+              </p>
+            </div>
+          )}
+          
+          <div className="mb-6">
+            <div className="flex justify-between mb-1">
+              <span className="text-sm text-app-teal-700">{redeemPercentage.toFixed(0)}%</span>
+              <span className="text-sm text-app-teal-700">100%</span>
+            </div>
+            <Slider
+              value={[redeemPercentage]}
+              onValueChange={handleSliderChange}
+              max={100}
+              step={1}
+              className="[&>span]:bg-app-teal-600"
+            />
+          </div>
+          
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="all-units" className="text-app-teal-700">Redeem all units</Label>
+            <Switch
+              id="all-units"
+              checked={allUnits}
+              onCheckedChange={handleAllUnitsToggle}
+              className="data-[state=checked]:bg-app-teal-600"
+            />
+          </div>
         </div>
+        
+        {/* Tax & Payout Information */}
+        <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
+          <h3 className="font-medium text-app-teal-900 mb-3">Redemption Details</h3>
+          
+          <div className="space-y-2 mb-3">
+            <div className="flex justify-between">
+              <span className="text-app-teal-700">Redemption Amount</span>
+              <span className="text-app-teal-900">₹{redeemAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-app-teal-700">Estimated Tax (if applicable)</span>
+              <span className="text-app-teal-900">₹{estimatedTax.toFixed(2)}</span>
+            </div>
+            <div className="border-t border-app-teal-100 pt-2 mt-2 flex justify-between">
+              <span className="font-medium text-app-teal-800">Estimated Payout</span>
+              <span className="font-medium text-app-teal-900">₹{estimatedPayout.toFixed(2)}</span>
+            </div>
+          </div>
+          
+          <div className="bg-app-teal-50 p-3 rounded-lg flex items-start">
+            <AlertTriangle size={18} className="text-app-orange mt-0.5 mr-2 flex-shrink-0" />
+            <p className="text-sm text-app-teal-800">
+              Redemption will be processed at the NAV applicable for the next business day. Funds will typically be credited to your bank account within 2-3 business days.
+            </p>
+          </div>
+        </div>
+        
+        {/* Action Buttons */}
+        <Button 
+          onClick={handleConfirmRedeem} 
+          className="w-full bg-app-teal-700 hover:bg-app-teal-800 text-white font-medium"
+        >
+          Confirm Redemption
+        </Button>
       </div>
+      
+      <BottomNav activeTab="invest" />
     </div>
   );
 };
