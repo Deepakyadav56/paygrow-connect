@@ -22,11 +22,11 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab }) => {
   })();
   
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10 flex items-center justify-around p-2">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-app-teal-200 z-10 flex items-center justify-around p-2 shadow-md">
       <NavLink 
         to="/home"
         className={({ isActive }) => 
-          `flex flex-col items-center py-2 px-3 ${currentTab === 'home' || isActive ? 'text-app-teal' : 'text-gray-500'}`
+          `flex flex-col items-center py-2 px-3 ${currentTab === 'home' || isActive ? 'text-app-teal-600' : 'text-gray-500'}`
         }
       >
         <Home size={22} className="mb-1" />
@@ -36,7 +36,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab }) => {
       <NavLink 
         to="/payments"
         className={({ isActive }) => 
-          `flex flex-col items-center py-2 px-3 ${currentTab === 'payments' || isActive ? 'text-app-teal' : 'text-gray-500'}`
+          `flex flex-col items-center py-2 px-3 ${currentTab === 'payments' || isActive ? 'text-app-teal-600' : 'text-gray-500'}`
         }
       >
         <Send size={22} className="mb-1" />
@@ -46,7 +46,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab }) => {
       <NavLink 
         to="/bills"
         className={({ isActive }) => 
-          `flex flex-col items-center py-2 px-3 ${currentTab === 'bills' || isActive ? 'text-app-teal' : 'text-gray-500'}`
+          `flex flex-col items-center py-2 px-3 ${currentTab === 'bills' || isActive ? 'text-app-teal-600' : 'text-gray-500'}`
         }
       >
         <Banknote size={22} className="mb-1" />
@@ -56,7 +56,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab }) => {
       <NavLink 
         to="/invest"
         className={({ isActive }) => 
-          `flex flex-col items-center py-2 px-3 ${currentTab === 'invest' || isActive ? 'text-app-teal' : 'text-gray-500'}`
+          `flex flex-col items-center py-2 px-3 ${currentTab === 'invest' || isActive ? 'text-app-teal-600' : 'text-gray-500'}`
         }
       >
         <LineChart size={22} className="mb-1" />
@@ -66,7 +66,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab }) => {
       <NavLink 
         to="/more"
         className={({ isActive }) => 
-          `flex flex-col items-center py-2 px-3 ${currentTab === 'more' || isActive ? 'text-app-teal' : 'text-gray-500'}`
+          `flex flex-col items-center py-2 px-3 ${currentTab === 'more' || isActive ? 'text-app-teal-600' : 'text-gray-500'}`
         }
       >
         <Menu size={22} className="mb-1" />

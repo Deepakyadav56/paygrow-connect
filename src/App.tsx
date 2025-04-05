@@ -27,6 +27,7 @@ import SIPCancelPage from "./pages/SIPCancelPage";
 import StartSIPPage from "./pages/StartSIPPage";
 import MutualFundFiltersPage from "./pages/MutualFundFiltersPage";
 import TransactionHistoryPage from "./pages/TransactionHistoryPage";
+import TransactionDetailsPage from "./pages/TransactionDetailsPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import ScanPayPage from "./pages/ScanPayPage";
 import SIPManagementPage from "./pages/SIPManagementPage";
@@ -53,6 +54,7 @@ const App = () => (
           <Route path="/payments/send" element={<SendMoneyPage />} />
           <Route path="/payments/scan" element={<ScanPayPage />} />
           <Route path="/transactions" element={<TransactionHistoryPage />} />
+          <Route path="/transaction/:id" element={<TransactionDetailsPage />} />
           <Route path="/transaction-history" element={<TransactionHistoryPage />} />
           <Route path="/payment-history" element={<TransactionHistoryPage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
