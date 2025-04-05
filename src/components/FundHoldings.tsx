@@ -18,10 +18,10 @@ interface FundHoldingsProps {
   showTabs?: boolean;
 }
 
-// Default colors for pie chart with improved palette
+// Updated colors for pie chart with teal theme
 const COLORS = [
-  '#0066FF', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', 
-  '#FF6B6B', '#6BD4FF', '#8DD1E1', '#A4DE6C', '#D0ED57'
+  '#14b8a6', '#0f766e', '#99f6e4', '#5eead4', '#2dd4bf', 
+  '#ccfbf1', '#0d9488', '#115e59', '#134e4a', '#042f2e'
 ];
 
 const FundHoldings: React.FC<FundHoldingsProps> = ({ 
@@ -109,20 +109,20 @@ const FundHoldings: React.FC<FundHoldingsProps> = ({
             <TabsList className="grid grid-cols-3 mb-3 bg-gray-100 p-1 rounded-lg">
               <TabsTrigger 
                 value="stocks"
-                className={`rounded-md text-sm ${activeTab === 'stocks' ? 'bg-white shadow text-app-blue' : 'hover:text-gray-900'}`}
+                className={`rounded-md text-sm ${activeTab === 'stocks' ? 'bg-white shadow text-app-teal' : 'hover:text-gray-900'}`}
               >
                 Top Stocks
               </TabsTrigger>
               <TabsTrigger 
                 value="sectors"
-                className={`rounded-md text-sm ${activeTab === 'sectors' ? 'bg-white shadow text-app-blue' : 'hover:text-gray-900'}`}
+                className={`rounded-md text-sm ${activeTab === 'sectors' ? 'bg-white shadow text-app-teal' : 'hover:text-gray-900'}`}
               >
                 Sectors
               </TabsTrigger>
               {assetAllocation.length > 0 && (
                 <TabsTrigger 
                   value="assets"
-                  className={`rounded-md text-sm ${activeTab === 'assets' ? 'bg-white shadow text-app-blue' : 'hover:text-gray-900'}`}
+                  className={`rounded-md text-sm ${activeTab === 'assets' ? 'bg-white shadow text-app-teal' : 'hover:text-gray-900'}`}
                 >
                   Asset Class
                 </TabsTrigger>

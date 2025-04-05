@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -7,13 +8,13 @@
 @layer base {
   :root {
     --background: 173 80% 98%;
-    --foreground: 180 84% 4.9%;
+    --foreground: 173 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 180 84% 4.9%;
+    --card-foreground: 173 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 180 84% 4.9%;
+    --popover-foreground: 173 84% 4.9%;
 
     --primary: 173 80% 36%;
     --primary-foreground: 173 40% 98%;
@@ -24,7 +25,7 @@
     --muted: 173 40% 96.1%;
     --muted-foreground: 173 16.3% 46.9%;
 
-    --accent: 35 94% 53%;
+    --accent: 173 70% 35%;
     --accent-foreground: 173 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -35,28 +36,37 @@
     --ring: 173 84% 4.9%;
 
     --radius: 1rem;
+
+    --sidebar-background: 173 80% 15%;
+    --sidebar-foreground: 173 40% 95%;
+    --sidebar-primary: 173 80% 36%;
+    --sidebar-primary-foreground: 173 40% 98%;
+    --sidebar-accent: 173 70% 45%;
+    --sidebar-accent-foreground: 173 40% 98%;
+    --sidebar-border: 173 80% 25%;
+    --sidebar-ring: 173 80% 70%;
   }
 
   .dark {
-    --background: 180 84% 4.9%;
+    --background: 173 84% 4.9%;
     --foreground: 173 40% 98%;
 
-    --card: 180 84% 4.9%;
+    --card: 173 84% 4.9%;
     --card-foreground: 173 40% 98%;
 
-    --popover: 180 84% 4.9%;
+    --popover: 173 84% 4.9%;
     --popover-foreground: 173 40% 98%;
 
     --primary: 173 80% 36%;
-    --primary-foreground: 180 47.4% 11.2%;
+    --primary-foreground: 173 47.4% 11.2%;
 
-    --secondary: 173 59% 94%;
+    --secondary: 173 59% 16%;
     --secondary-foreground: 173 40% 98%;
 
     --muted: 173 32.6% 17.5%;
     --muted-foreground: 173 20.2% 65.1%;
 
-    --accent: 35 94% 53%;
+    --accent: 173 70% 35%;
     --accent-foreground: 173 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -65,6 +75,15 @@
     --border: 173 32.6% 17.5%;
     --input: 173 32.6% 17.5%;
     --ring: 173 26.8% 83.9%;
+
+    --sidebar-background: 173 80% 10%;
+    --sidebar-foreground: 173 40% 95%;
+    --sidebar-primary: 173 80% 40%;
+    --sidebar-primary-foreground: 173 40% 10%;
+    --sidebar-accent: 173 70% 45%;
+    --sidebar-accent-foreground: 173 40% 10%;
+    --sidebar-border: 173 80% 20%;
+    --sidebar-ring: 173 80% 60%;
   }
 }
 
@@ -89,7 +108,7 @@
   
   .gradient-card {
     @apply relative overflow-hidden rounded-2xl shadow-lg;
-    background: linear-gradient(135deg, #0066FF, #00D09C);
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
   }
   
   .feature-icon {
@@ -101,7 +120,7 @@
   }
   
   .nav-item.active {
-    @apply text-app-blue;
+    @apply text-app-teal;
   }
   
   .nav-icon {
@@ -109,15 +128,15 @@
   }
   
   .button-primary {
-    @apply bg-app-blue hover:bg-app-dark-blue text-white font-medium py-3 px-4 rounded-xl transition duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-md;
+    @apply bg-app-teal hover:bg-app-teal-700 text-white font-medium py-3 px-4 rounded-xl transition duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-md;
   }
   
   .button-secondary {
-    @apply bg-white hover:bg-gray-50 text-app-blue font-medium py-3 px-4 rounded-xl border border-app-blue transition duration-200 ease-in-out transform hover:scale-105 active:scale-95;
+    @apply bg-white hover:bg-gray-50 text-app-teal font-medium py-3 px-4 rounded-xl border border-app-teal transition duration-200 ease-in-out transform hover:scale-105 active:scale-95;
   }
   
   .button-teal {
-    @apply bg-app-teal hover:bg-app-teal/90 text-white font-medium py-3 px-4 rounded-xl transition duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-md;
+    @apply bg-app-teal hover:bg-app-teal-700 text-white font-medium py-3 px-4 rounded-xl transition duration-200 ease-in-out transform hover:scale-105 active:scale-95 shadow-md;
   }
   
   .button-ghost {
@@ -125,11 +144,11 @@
   }
   
   .button-icon {
-    @apply flex items-center justify-center w-12 h-12 rounded-full bg-app-light-blue text-app-blue transition hover:bg-app-blue hover:text-white;
+    @apply flex items-center justify-center w-12 h-12 rounded-full bg-app-light-blue text-app-teal transition hover:bg-app-teal hover:text-white;
   }
   
   .input-standard {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-app-blue focus:border-app-blue outline-none transition duration-200;
+    @apply w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-app-teal focus:border-app-teal outline-none transition duration-200;
   }
   
   .card-balance {
@@ -170,7 +189,7 @@
   }
   
   .badge-success {
-    @apply bg-app-light-green text-app-green;
+    @apply bg-app-light-green text-app-teal;
   }
   
   .badge-warning {
@@ -190,7 +209,7 @@
   }
   
   .payment-tag {
-    @apply px-3 py-1.5 rounded-full bg-app-light-blue text-app-blue text-xs font-medium;
+    @apply px-3 py-1.5 rounded-full bg-app-light-blue text-app-teal text-xs font-medium;
   }
   
   .transaction-item {
@@ -198,7 +217,7 @@
   }
   
   .header-gradient {
-    background: linear-gradient(135deg, #0066FF, #003380);
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
     @apply text-white rounded-b-3xl shadow-lg;
   }
 }

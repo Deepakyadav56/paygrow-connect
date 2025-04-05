@@ -21,7 +21,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="bg-white p-3 shadow-lg rounded-lg border border-gray-100">
         <p className="font-medium text-sm mb-1">{label}</p>
-        <p className="text-app-blue font-medium text-sm">
+        <p className="text-app-teal font-medium text-sm">
           {payload[0].name}: ₹{payload[0].value.toLocaleString('en-IN')}
         </p>
         <p className="text-gray-600 text-sm">
@@ -62,28 +62,28 @@ const FundPerfChart: React.FC<FundPerfChartProps> = ({
         <div className="flex space-x-1 bg-gray-100 p-0.5 rounded-lg">
           <Button 
             variant={timeRange === '1y' ? 'default' : 'ghost'} 
-            className={`h-7 text-xs px-3 rounded-md ${timeRange === '1y' ? 'bg-white text-app-blue shadow-sm' : 'text-gray-600 hover:bg-transparent hover:text-gray-900'}`}
+            className={`h-7 text-xs px-3 rounded-md ${timeRange === '1y' ? 'bg-white text-app-teal shadow-sm' : 'text-gray-600 hover:bg-transparent hover:text-gray-900'}`}
             onClick={() => setTimeRange('1y')}
           >
             1Y
           </Button>
           <Button 
             variant={timeRange === '3y' ? 'default' : 'ghost'} 
-            className={`h-7 text-xs px-3 rounded-md ${timeRange === '3y' ? 'bg-white text-app-blue shadow-sm' : 'text-gray-600 hover:bg-transparent hover:text-gray-900'}`}
+            className={`h-7 text-xs px-3 rounded-md ${timeRange === '3y' ? 'bg-white text-app-teal shadow-sm' : 'text-gray-600 hover:bg-transparent hover:text-gray-900'}`}
             onClick={() => setTimeRange('3y')}
           >
             3Y
           </Button>
           <Button 
             variant={timeRange === '5y' ? 'default' : 'ghost'} 
-            className={`h-7 text-xs px-3 rounded-md ${timeRange === '5y' ? 'bg-white text-app-blue shadow-sm' : 'text-gray-600 hover:bg-transparent hover:text-gray-900'}`}
+            className={`h-7 text-xs px-3 rounded-md ${timeRange === '5y' ? 'bg-white text-app-teal shadow-sm' : 'text-gray-600 hover:bg-transparent hover:text-gray-900'}`}
             onClick={() => setTimeRange('5y')}
           >
             5Y
           </Button>
           <Button 
             variant={timeRange === 'all' ? 'default' : 'ghost'} 
-            className={`h-7 text-xs px-3 rounded-md ${timeRange === 'all' ? 'bg-white text-app-blue shadow-sm' : 'text-gray-600 hover:bg-transparent hover:text-gray-900'}`}
+            className={`h-7 text-xs px-3 rounded-md ${timeRange === 'all' ? 'bg-white text-app-teal shadow-sm' : 'text-gray-600 hover:bg-transparent hover:text-gray-900'}`}
             onClick={() => setTimeRange('all')}
           >
             All
@@ -97,8 +97,8 @@ const FundPerfChart: React.FC<FundPerfChartProps> = ({
         >
           <defs>
             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#0066FF" stopOpacity={0.2}/>
-              <stop offset="95%" stopColor="#0066FF" stopOpacity={0}/>
+              <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.2}/>
+              <stop offset="95%" stopColor="#14b8a6" stopOpacity={0}/>
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
@@ -130,7 +130,7 @@ const FundPerfChart: React.FC<FundPerfChartProps> = ({
           <Line 
             type="monotone" 
             dataKey="value" 
-            stroke="#0066FF" 
+            stroke="#14b8a6" 
             strokeWidth={2.5}
             dot={false}
             activeDot={{ r: 6, strokeWidth: 0 }}

@@ -63,8 +63,8 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom app colors
-				"app-blue": "#0066FF",
+				// Updated app colors to teal theme
+				"app-blue": "#14b8a6", // Changed to teal-500
 				"app-teal": {
 					'50': '#f0fdfa',
 					'100': '#ccfbf1',
@@ -80,13 +80,13 @@ export default {
 					DEFAULT: '#14b8a6',
 				},
 				"app-orange": "#F7931A",
-				"app-light-blue": "#E6F0FF",
-				"app-dark-blue": "#003380",
+				"app-light-blue": "#ccfbf1", // Changed to teal-100
+				"app-dark-blue": "#0f766e", // Changed to teal-700
 				"app-purple": "#6E59A5",
-				"app-light-green": "#E5FCF5",
+				"app-light-green": "#f0fdfa", // Changed to teal-50
 				"app-light-orange": "#FFF4E6",
 				"app-red": "#FF3B30",
-				"app-green": "#34C759",
+				"app-green": "#0d9488", // Changed to teal-600
 				"app-gray": "#8E9196"
 			},
 			borderRadius: {

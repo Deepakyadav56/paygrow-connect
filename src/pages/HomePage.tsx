@@ -13,9 +13,9 @@ const HomePage: React.FC = () => {
   const [balance, setBalance] = useState(12500);
   
   const quickActions = [
-    { name: 'Send Money', icon: <Send size={22} />, color: 'bg-app-light-blue text-app-blue', path: '/payments/send' },
-    { name: 'Scan & Pay', icon: <QrCode size={22} />, color: 'bg-app-light-blue text-app-blue', path: '/payments/scan' },
-    { name: 'Pay Bills', icon: <Receipt size={22} />, color: 'bg-app-light-blue text-app-blue', path: '/bills' },
+    { name: 'Send Money', icon: <Send size={22} />, color: 'bg-app-light-blue text-app-teal', path: '/payments/send' },
+    { name: 'Scan & Pay', icon: <QrCode size={22} />, color: 'bg-app-light-blue text-app-teal', path: '/payments/scan' },
+    { name: 'Pay Bills', icon: <Receipt size={22} />, color: 'bg-app-light-blue text-app-teal', path: '/bills' },
     { name: 'Invest', icon: <TrendingUp size={22} />, color: 'bg-app-light-green text-app-teal', path: '/invest' },
   ];
   
@@ -121,7 +121,7 @@ const HomePage: React.FC = () => {
           <h2 className="text-lg font-semibold">Your Cards</h2>
           <button 
             onClick={() => navigate('/cards')}
-            className="text-app-blue text-sm font-medium flex items-center"
+            className="text-app-teal text-sm font-medium flex items-center"
           >
             View All <ChevronRight size={16} />
           </button>
@@ -166,7 +166,7 @@ const HomePage: React.FC = () => {
             onClick={() => navigate('/wallet')}
             className="card-action"
           >
-            <div className="feature-icon bg-app-blue">
+            <div className="feature-icon bg-app-teal">
               <Wallet size={20} />
             </div>
             <span className="text-xs text-center">Wallet</span>
@@ -186,7 +186,7 @@ const HomePage: React.FC = () => {
             onClick={() => navigate('/payments/request')}
             className="card-action"
           >
-            <div className="feature-icon bg-app-green">
+            <div className="feature-icon bg-app-teal-600">
               <Users size={20} />
             </div>
             <span className="text-xs text-center">Request Money</span>
@@ -210,7 +210,7 @@ const HomePage: React.FC = () => {
           <h2 className="text-lg font-semibold">Recent Transactions</h2>
           <button 
             onClick={() => navigate('/transactions')}
-            className="text-app-blue text-sm font-medium flex items-center"
+            className="text-app-teal text-sm font-medium flex items-center"
           >
             View All <ChevronRight size={16} />
           </button>
@@ -233,7 +233,7 @@ const HomePage: React.FC = () => {
         
         <Button 
           variant="outline" 
-          className="w-full mt-4"
+          className="w-full mt-4 border-app-teal text-app-teal hover:bg-app-light-blue hover:text-app-teal-700"
           onClick={() => navigate('/transactions')}
         >
           See All Transactions

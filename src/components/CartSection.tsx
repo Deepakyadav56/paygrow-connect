@@ -17,9 +17,9 @@ const CartSection: React.FC<CartSectionProps> = ({ itemCount }) => {
     >
       <div className="flex items-center">
         <div className="relative">
-          <ShoppingCart size={20} className="text-green-500 mr-2" />
+          <ShoppingCart size={20} className="text-app-teal mr-2" />
           {itemCount > 0 && (
-            <div className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+            <div className="absolute -top-1 -right-1 bg-app-teal text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
               {itemCount}
             </div>
           )}
