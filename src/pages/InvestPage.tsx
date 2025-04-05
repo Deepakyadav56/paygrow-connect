@@ -18,7 +18,8 @@ import {
   X,
   PauseCircle,
   PlayCircle,
-  Target
+  Target,
+  Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,6 +44,8 @@ import { Badge } from '@/components/ui/badge';
 import InvestmentGoalCard from '@/components/InvestmentGoalCard';
 import InvestmentInsights from '@/components/InvestmentInsights';
 import { toast } from 'sonner';
+import CartSection from '@/components/CartSection';
+import WatchlistSection from '@/components/WatchlistSection';
 
 // Mock data for investments
 const recommendedFunds = [
@@ -302,8 +305,8 @@ const InvestPage: React.FC = () => {
           <TabsContent value="portfolio" className="space-y-4">
             {yourInvestments.length > 0 ? (
               <>
-                <div className="rounded-xl overflow-hidden bg-white shadow-sm border border-gray-100">
-                  <div className="bg-gradient-to-r from-app-blue to-app-teal p-5 text-white">
+                <div className="rounded-xl overflow-hidden bg-white shadow-sm border border-app-teal-100">
+                  <div className="bg-gradient-to-r from-app-teal-600 to-app-teal-500 p-5 text-white">
                     <div className="mb-3">
                       <h2 className="text-sm font-medium opacity-90">Current Value</h2>
                       <h3 className="text-2xl font-semibold">₹{totalPortfolioValue.toLocaleString('en-IN')}</h3>
@@ -327,7 +330,7 @@ const InvestPage: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="bg-white p-4 border-x border-b border-gray-200">
+                  <div className="bg-white p-4 border-x border-b border-app-teal-200">
                     <div className="flex justify-between mb-4">
                       <h3 className="font-medium">Asset Allocation</h3>
                       <Button 
@@ -362,6 +365,10 @@ const InvestPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                
+                <WatchlistSection itemCount={4} />
+                
+                <CartSection itemCount={2} />
                 
                 <div className="flex justify-between items-center mb-1">
                   <div className="flex items-center space-x-3">
@@ -555,7 +562,7 @@ const InvestPage: React.FC = () => {
                 )}
               </>
             ) : (
-              <div className="bg-white rounded-xl p-8 flex flex-col items-center text-center shadow-sm border border-gray-200">
+              <div className="bg-white rounded-xl p-8 flex flex-col items-center text-center shadow-sm border border-app-teal-200">
                 <div className="w-16 h-16 bg-app-light-blue rounded-full flex items-center justify-center mb-4">
                   <LineChart size={32} className="text-app-blue" />
                 </div>
@@ -739,7 +746,7 @@ const InvestPage: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-xl p-6 flex flex-col items-center text-center shadow-sm border border-gray-200">
+              <div className="bg-white rounded-xl p-6 flex flex-col items-center text-center shadow-sm border border-app-teal-200">
                 <Search size={32} className="text-gray-400 mb-3" />
                 <h3 className="font-medium mb-1">No Funds Found</h3>
                 <p className="text-sm text-gray-600">
