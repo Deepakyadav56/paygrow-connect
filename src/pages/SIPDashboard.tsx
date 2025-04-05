@@ -7,6 +7,9 @@ import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
 import SIPManagementCard from '@/components/SIPManagementCard';
 
+// Define the status type
+type SIPStatus = 'active' | 'paused' | 'stopped';
+
 // Mock data for SIPs
 const mockSips = [
   {
@@ -17,7 +20,7 @@ const mockSips = [
     amount: 5000,
     frequency: 'Monthly',
     nextDate: '15 Jun 2023',
-    status: 'active' as const,
+    status: 'active' as SIPStatus,
     totalInvested: 60000,
     currentValue: 72500,
     returns: {
@@ -33,7 +36,7 @@ const mockSips = [
     amount: 2500,
     frequency: 'Monthly',
     nextDate: '20 Jun 2023',
-    status: 'paused' as const,
+    status: 'paused' as SIPStatus,
     totalInvested: 30000,
     currentValue: 34800,
     returns: {
@@ -49,7 +52,7 @@ const mockSips = [
     amount: 1000,
     frequency: 'Monthly',
     nextDate: '25 Jun 2023',
-    status: 'active' as const,
+    status: 'active' as SIPStatus,
     totalInvested: 12000,
     currentValue: 15600,
     returns: {
@@ -59,18 +62,20 @@ const mockSips = [
   },
 ];
 
-// Define the status type
-type SIPStatus = 'active' | 'paused' | 'stopped';
-
 const SIPDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   
   const filteredSips = mockSips.filter((sip) => {
-    if (activeTab === 'active' && sip.status !== 'active') return false;
-    if (activeTab === 'paused' && sip.status !== 'paused') return false;
-    if (activeTab === 'stopped' && sip.status !== 'stopped') return false;
+    // Use 'all' tab or match the specific status
+    if (activeTab === 'all') return true;
+    if (activeTab === 'active' && sip.status === 'active') return true;
+    if (activeTab === 'paused' && sip.status === 'paused') return true;
+    if (activeTab === 'stopped' && sip.status === 'stopped') return true;
     
+    return false;
+  }).filter((sip) => {
+    // Apply search filter if query exists
     if (searchQuery) {
       return sip.fundName.toLowerCase().includes(searchQuery.toLowerCase());
     }
